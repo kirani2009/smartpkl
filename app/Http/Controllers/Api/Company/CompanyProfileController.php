@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Http\Controllers\Api\Company;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Company\StoreCompanyProfileRequest;
+use App\Http\Requests\Company\UpdateCompanyProfileRequest;
+use App\Http\Resources\CompanyResource;
+use App\Models\Company;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+/**
+ * PHASE 5 — Company.
+ * Profil perusahaan (hanya profil milik sendiri).
+ */
+class CompanyProfileController extends Controller
+{
+    use ApiResponseTrait;
+
+    /**
+     * GET /api/me/company — profil perusahaan yang sedang login.
+     */
+    public function show(Request $request): JsonResponse
+    {
+        $company = $request->user()->company;
+
+        if (! $company) {
+            return $this->error('Profil perusahaan belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
+        }
+
+        $company->load('profile');
+
+        return $this->success(new CompanyResource($company), 'Profil perusahaan berhasil diambil.');
+    }
+
+    /**
+     * POST /api/me/company — buat profil perusahaan.
+     */
+    public function store(StoreCompanyProfileRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->company) {
+            return $this->error('Profil perusahaan sudah ada. Gunakan PUT untuk memperbarui.', null, 409);
+        }
+
+        $company = $user->company()->create([
+            'status' => Company::STATUS_ACTIVE,
+        ]);
+
+        $company->profile()->create($request->validated());
+        $company->load('profile');
+
+        return $this->success(new CompanyResource($company), 'Profil perusahaan berhasil dibuat.', 201);
+    }
+
+    /**
+     * PUT /api/me/company — perbarui profil perusahaan.
+     */
+    public function update(UpdateCompanyProfileRequest $request): JsonResponse
+    {
+        $company = $request->user()->company;
+
+        if (! $company) {
+            return $this->error('Profil perusahaan belum ada. Gunakan POST untuk membuat profil.', null, 404);
+        }
+
+        if ($company->profile) {
+            $company->profile->update($request->validated());
+        } else {
+            $company->profile()->create($request->validated());
+        }
+
+        $company->load('profile');
+
+        return $this->success(new CompanyResource($company), 'Profil perusahaan berhasil diperbarui.');
+    }
+}

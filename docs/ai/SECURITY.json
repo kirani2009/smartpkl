@@ -1,0 +1,17 @@
+{
+  "requirements": [
+    "Authentication",
+    "Authorization",
+    "Role middleware",
+    "Validation",
+    "Password hashing",
+    "File validation",
+    "Upload size limits",
+    "MIME validation",
+    "SQL injection prevention",
+    "XSS prevention",
+    "CSRF protection where applicable",
+    "Rate limiting where necessary"
+  ],
+  "critical_rule": "Security must be enforced by Laravel backend, not only frontend."
+}

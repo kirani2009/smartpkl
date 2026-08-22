@@ -1,0 +1,47 @@
+{
+  "principles": [
+    "Gunakan normalisasi database yang wajar.",
+    "Gunakan foreign key.",
+    "Gunakan index pada kolom pencarian dan foreign key penting.",
+    "Gunakan unique constraint jika diperlukan.",
+    "Gunakan timestamps.",
+    "Gunakan soft delete hanya jika memang dibutuhkan.",
+    "Jangan membuat tabel duplicate."
+  ],
+  "tables": [
+    "users",
+    "schools",
+    "teachers",
+    "students",
+    "companies",
+    "company_profiles",
+    "school_company_partnerships",
+    "majors",
+    "skills",
+    "student_skills",
+    "internship_listings",
+    "internship_requirements",
+    "applications",
+    "application_status_histories",
+    "interviews",
+    "saved_internships",
+    "documents",
+    "certificates",
+    "portfolios",
+    "notifications",
+    "reports"
+  ],
+  "relationship_rules": [
+    "One school has many students.",
+    "One school has many teachers.",
+    "One school has many company partnerships.",
+    "One company can have many school partnerships.",
+    "One company can have many internship listings.",
+    "One internship can have many applications.",
+    "One student can have many applications.",
+    "One student can have many skills.",
+    "One skill can belong to many students.",
+    "One application has many status histories.",
+    "One application may have zero or one active interview."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "purpose": "Mengelola hubungan resmi sekolah dengan perusahaan.",
+  "workflow": [
+    "Teacher finds company",
+    "Teacher sends request",
+    "Company reviews request",
+    "Company accepts or rejects",
+    "Partnership becomes active if accepted"
+  ],
+  "statuses": [
+    "PENDING",
+    "ACCEPTED",
+    "REJECTED",
+    "EXPIRED"
+  ],
+  "rules": [
+    "Hanya partnership ACTIVE yang dapat digunakan untuk lowongan khusus sekolah.",
+    "Teacher dapat mengajukan partnership.",
+    "Company yang menentukan apakah partnership diterima.",
+    "Admin dapat melakukan monitoring."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "style": [
+    "Modern",
+    "Clean",
+    "Professional",
+    "Friendly",
+    "Simple",
+    "Responsive"
+  ],
+  "student_style": "Lebih sederhana, modern, dan mudah dipahami siswa.",
+  "teacher_style": "Dashboard informatif dan fokus pada monitoring.",
+  "company_style": "Professional dan fokus pada applicant management.",
+  "admin_style": "Data-oriented dashboard.",
+  "components": [
+    "Button",
+    "Input",
+    "Select",
+    "Modal",
+    "Card",
+    "Badge",
+    "Table",
+    "SearchBar",
+    "Filter",
+    "Pagination",
+    "Sidebar",
+    "Navbar",
+    "Notification",
+    "StatusBadge",
+    "EmptyState",
+    "LoadingState",
+    "ErrorState"
+  ],
+  "rule": "Jangan membuat desain berbeda-beda untuk fitur yang sama."
+}

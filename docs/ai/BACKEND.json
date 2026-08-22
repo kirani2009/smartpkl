@@ -1,0 +1,15 @@
+{
+  "framework": "Laravel",
+  "rules": [
+    "Gunakan MVC.",
+    "Gunakan Eloquent.",
+    "Gunakan Form Request.",
+    "Gunakan API Resource.",
+    "Gunakan Policies atau Gates untuk authorization.",
+    "Gunakan middleware role.",
+    "Gunakan Service Layer jika business logic kompleks.",
+    "Gunakan database transaction untuk proses yang membutuhkan atomicity.",
+    "Jangan menaruh query kompleks berulang di controller.",
+    "Gunakan eager loading untuk menghindari N+1 query."
+  ]
+}

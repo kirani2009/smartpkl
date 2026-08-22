@@ -1,0 +1,64 @@
+{
+  "student": {
+    "can": [
+      "view partner internships",
+      "search internships",
+      "filter internships",
+      "apply",
+      "save internship",
+      "view own application",
+      "manage own profile",
+      "manage own CV",
+      "manage own portfolio",
+      "view own notification"
+    ],
+    "cannot": [
+      "manage company",
+      "manage partnership",
+      "decide application result",
+      "access teacher dashboard",
+      "access admin dashboard"
+    ]
+  },
+  "teacher": {
+    "can": [
+      "manage school students",
+      "search company",
+      "create partnership request",
+      "view partnership",
+      "monitor student application",
+      "monitor student placement",
+      "view reports"
+    ],
+    "cannot": [
+      "accept student on behalf of company",
+      "reject student on behalf of company",
+      "change company decision"
+    ]
+  },
+  "company": {
+    "can": [
+      "manage company profile",
+      "accept partnership",
+      "reject partnership",
+      "create internship",
+      "manage internship",
+      "view applicants",
+      "view student profile",
+      "accept applicant",
+      "reject applicant",
+      "schedule optional interview"
+    ]
+  },
+  "admin": {
+    "can": [
+      "manage all users",
+      "manage schools",
+      "manage companies",
+      "manage partnerships",
+      "manage internships",
+      "monitor applications",
+      "manage reports"
+    ]
+  }
+}

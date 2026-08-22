@@ -1,0 +1,18 @@
+{
+  "purpose": "Mengelola pendaftaran siswa ke lowongan PKL.",
+  "statuses": [
+    "PENDING",
+    "REVIEWED",
+    "INTERVIEW",
+    "ACCEPTED",
+    "REJECTED"
+  ],
+  "rules": [
+    "Satu siswa tidak boleh membuat application duplicate pada lowongan yang sama.",
+    "Student hanya dapat melihat application miliknya.",
+    "Company hanya dapat melihat application yang berkaitan dengan internship miliknya.",
+    "Teacher dapat memonitor application siswa dari sekolahnya.",
+    "Company adalah pihak yang menentukan ACCEPTED atau REJECTED.",
+    "Setiap perubahan status harus dicatat di application_status_histories."
+  ]
+}

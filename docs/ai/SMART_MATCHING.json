@@ -1,0 +1,23 @@
+{
+  "purpose": "Memberikan rekomendasi lowongan PKL yang sesuai dengan siswa.",
+  "type": "Rule based scoring",
+  "inputs": [
+    "student_major",
+    "student_skills",
+    "student_interest",
+    "student_location",
+    "internship_major",
+    "internship_skills",
+    "internship_location",
+    "internship_period"
+  ],
+  "example_weights": {
+    "major": 30,
+    "skills": 35,
+    "interest": 15,
+    "location": 10,
+    "period": 10
+  },
+  "output": "0-100 match percentage",
+  "rule": "Scoring harus transparan dan mudah diubah. Jangan memasukkan machine learning pada MVP."
+}

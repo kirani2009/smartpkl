@@ -1,0 +1,31 @@
+{
+  "partnership": [
+    "Teacher searches company",
+    "Teacher sends partnership request",
+    "Company receives request",
+    "Company accepts or rejects",
+    "If accepted, partnership becomes ACTIVE"
+  ],
+  "internship": [
+    "Company with active partnership creates internship",
+    "Company specifies school eligibility",
+    "Internship published",
+    "Students can view internship"
+  ],
+  "application": [
+    "Student opens internship detail",
+    "Student submits application",
+    "Application becomes PENDING",
+    "Company reviews student",
+    "Company may schedule interview",
+    "Company accepts or rejects",
+    "System notifies student",
+    "Teacher can monitor result"
+  ],
+  "internship_period": [
+    "ACCEPTED",
+    "PREPARATION",
+    "ONGOING",
+    "COMPLETED"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "style": "REST API",
+  "base": "/api",
+  "authentication": "Laravel Sanctum",
+  "rules": [
+    "Gunakan route API yang konsisten.",
+    "Gunakan Form Request untuk validasi.",
+    "Gunakan API Resource untuk response.",
+    "Gunakan HTTP status code yang sesuai.",
+    "Jangan menaruh business logic kompleks di controller.",
+    "Gunakan service class jika logic sudah kompleks.",
+    "Pastikan setiap endpoint memiliki authorization."
+  ],
+  "response_structure": {
+    "success": true,
+    "message": "Human readable message",
+    "data": {},
+    "errors": null
+  }
+}

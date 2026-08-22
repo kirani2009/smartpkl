@@ -1,0 +1,24 @@
+{
+  "framework": "Flutter",
+  "priority": "Student experience",
+  "features": [
+    "Login",
+    "Dashboard",
+    "Profile",
+    "Internship search",
+    "Internship detail",
+    "Apply",
+    "Application status",
+    "Interview information",
+    "Notifications",
+    "Saved internships"
+  ],
+  "rules": [
+    "Gunakan API Laravel.",
+    "Jangan membuat business logic berbeda dari backend.",
+    "Gunakan reusable widgets.",
+    "Handle loading, error, and empty states.",
+    "Simpan authentication token secara aman.",
+    "Pastikan UI responsive terhadap berbagai ukuran layar."
+  ]
+}

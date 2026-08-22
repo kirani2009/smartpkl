@@ -1,0 +1,20 @@
+{
+  "phase_1": "Foundation",
+  "phase_2": "Authentication",
+  "phase_3": "Database",
+  "phase_4": "School Teacher",
+  "phase_5": "Company",
+  "phase_6": "Partnership",
+  "phase_7": "Internship",
+  "phase_8": "Student Profile",
+  "phase_9": "Application",
+  "phase_10": "Selection",
+  "phase_11": "Interview",
+  "phase_12": "Teacher Monitoring",
+  "phase_13": "Notification",
+  "phase_14": "Smart Matching",
+  "phase_15": "Reporting",
+  "phase_16": "Flutter",
+  "phase_17": "Testing",
+  "phase_18": "Shared Hosting Deployment"
+}

@@ -1,0 +1,21 @@
+{
+  "reports": [
+    "Student placement",
+    "Students without internship",
+    "Company partnership",
+    "Internship listing",
+    "Application",
+    "Accepted students",
+    "Rejected students"
+  ],
+  "formats": [
+    "Web",
+    "PDF",
+    "Excel"
+  ],
+  "rules": [
+    "Teacher hanya dapat melihat data sekolahnya.",
+    "Company hanya dapat melihat data yang berkaitan dengan perusahaan.",
+    "Admin dapat melihat data platform."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "events": [
+    "Partnership request received",
+    "Partnership accepted",
+    "Partnership rejected",
+    "Application submitted",
+    "Application reviewed",
+    "Interview scheduled",
+    "Application accepted",
+    "Application rejected",
+    "Internship reminder",
+    "New recommended internship"
+  ],
+  "implementation": {
+    "initial": "Database notification",
+    "email": "Optional",
+    "push": "Future Flutter feature",
+    "whatsapp": "Future feature"
+  },
+  "shared_hosting_rule": "Jangan membuat notification system yang membutuhkan infrastructure server tambahan pada tahap awal."
+}

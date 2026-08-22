@@ -1,0 +1,21 @@
+{
+  "levels": [
+    "Unit",
+    "Feature",
+    "API",
+    "Frontend",
+    "Mobile",
+    "Manual"
+  ],
+  "critical_tests": [
+    "Student cannot access teacher dashboard.",
+    "Teacher cannot accept/reject student.",
+    "Company can accept/reject applicant.",
+    "Student cannot apply twice.",
+    "Company cannot edit another company internship.",
+    "Teacher can only monitor students from own school.",
+    "Company can only view relevant applicants.",
+    "Partnership must be active before restricted internship creation.",
+    "Application status history is recorded."
+  ]
+}

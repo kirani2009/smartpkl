@@ -1,0 +1,19 @@
+{
+  "method": "Incremental development",
+  "rules": [
+    "Selalu baca instruction file yang relevan sebelum coding.",
+    "Periksa project structure sebelum membuat file.",
+    "Jangan mengasumsikan file belum ada.",
+    "Jangan overwrite konfigurasi tanpa memeriksa.",
+    "Kerjakan satu fitur dalam satu waktu.",
+    "Setelah fitur selesai, lakukan testing.",
+    "Jika error, cari root cause.",
+    "Jangan memperbaiki error dengan mengubah banyak bagian yang tidak berkaitan.",
+    "Jangan melanjutkan phase jika fitur sebelumnya belum stabil.",
+    "Selalu jelaskan file yang dibuat atau diubah.",
+    "Selalu berikan command yang harus dijalankan.",
+    "Selalu berikan expected result.",
+    "Jika terdapat pilihan arsitektur, pilih yang paling sederhana dan cocok untuk shared hosting."
+  ],
+  "preferred_prompt_style": "Instruksi spesifik berdasarkan file dan phase, bukan permintaan membuat seluruh aplikasi sekaligus."
+}

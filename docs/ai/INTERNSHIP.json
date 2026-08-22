@@ -1,0 +1,32 @@
+{
+  "purpose": "Mengelola kebutuhan siswa PKL dari perusahaan partner.",
+  "fields": [
+    "title",
+    "description",
+    "position",
+    "major",
+    "quota",
+    "period_start",
+    "period_end",
+    "location",
+    "allowance",
+    "facilities",
+    "requirements",
+    "skills",
+    "status"
+  ],
+  "statuses": [
+    "DRAFT",
+    "PUBLISHED",
+    "CLOSED",
+    "EXPIRED"
+  ],
+  "rules": [
+    "Company membuat internship.",
+    "Company menentukan kuota.",
+    "Company menentukan persyaratan.",
+    "Company menentukan periode.",
+    "Student hanya dapat apply jika memenuhi aturan lowongan.",
+    "Lowongan harus berasal dari perusahaan yang memiliki hubungan yang valid dengan sekolah terkait."
+  ]
+}

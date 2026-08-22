@@ -1,0 +1,33 @@
+{
+  "framework": "ReactJS",
+  "styling": "Tailwind CSS",
+  "rules": [
+    "Gunakan reusable component.",
+    "Gunakan React Router.",
+    "Gunakan Axios atau API client yang konsisten.",
+    "Pisahkan API service dari UI component.",
+    "Gunakan loading state.",
+    "Gunakan empty state.",
+    "Gunakan error state.",
+    "Gunakan responsive design.",
+    "Jangan membuat component terlalu besar."
+  ],
+  "main_pages": [
+    "/",
+    "/internships",
+    "/internships/:id",
+    "/student/dashboard",
+    "/student/profile",
+    "/student/applications",
+    "/student/interviews",
+    "/teacher/dashboard",
+    "/teacher/students",
+    "/teacher/partnerships",
+    "/teacher/reports",
+    "/company/dashboard",
+    "/company/partnerships",
+    "/company/internships",
+    "/company/applicants",
+    "/admin/dashboard"
+  ]
+}

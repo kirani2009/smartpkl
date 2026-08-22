@@ -1,0 +1,29 @@
+{
+  "target": "Shared Hosting",
+  "development": "Local Computer",
+  "rules": [
+    "Jangan membutuhkan VPS.",
+    "Jangan membutuhkan Docker.",
+    "Jangan membutuhkan Kubernetes.",
+    "Jangan membutuhkan S3.",
+    "Jangan membutuhkan Redis server.",
+    "Jangan membutuhkan background worker yang membutuhkan server khusus.",
+    "Gunakan MySQL.",
+    "Gunakan storage Laravel yang kompatibel dengan shared hosting.",
+    "Pastikan konfigurasi .env mudah dipindahkan.",
+    "Gunakan production build untuk React.",
+    "Pastikan Laravel dapat dijalankan pada shared hosting dengan PHP version yang sesuai."
+  ],
+  "deployment_flow": [
+    "Develop locally",
+    "Test locally",
+    "Build frontend",
+    "Prepare Laravel production",
+    "Upload project to shared hosting",
+    "Configure environment",
+    "Configure MySQL",
+    "Run migration",
+    "Configure storage",
+    "Test production"
+  ]
+}

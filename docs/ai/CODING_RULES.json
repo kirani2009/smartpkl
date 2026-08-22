@@ -1,0 +1,20 @@
+{
+  "rules": [
+    "Use clear naming.",
+    "Use consistent naming convention.",
+    "Do not duplicate business logic.",
+    "Do not duplicate components.",
+    "Do not create unnecessary abstraction.",
+    "Keep controllers thin.",
+    "Use Form Requests.",
+    "Use API Resources.",
+    "Use Policies for authorization.",
+    "Use Services for complex business logic.",
+    "Use migrations for database changes.",
+    "Do not manually modify production database structure.",
+    "Do not delete existing working features without permission.",
+    "Do not install packages unless necessary.",
+    "Explain why a package is needed.",
+    "Check existing dependencies before installing new ones."
+  ]
+}

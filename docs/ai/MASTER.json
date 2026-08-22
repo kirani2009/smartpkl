@@ -1,0 +1,22 @@
+{
+  "purpose": "Master instruction untuk seluruh proyek SmartPKL.",
+  "rules": [
+    "SmartPKL berfokus pada hubungan Sekolah, Perusahaan, dan Siswa.",
+    "Guru menjadi penghubung sekolah dengan perusahaan.",
+    "Perusahaan menjadi pihak yang menentukan siswa diterima atau ditolak.",
+    "Siswa menggunakan sistem untuk mencari dan mendaftar PKL.",
+    "Backend Laravel adalah sumber utama business logic.",
+    "React dan Flutter hanya berkomunikasi melalui API.",
+    "MySQL digunakan sebagai database.",
+    "Development dilakukan di komputer lokal.",
+    "Deployment ditargetkan ke shared hosting.",
+    "Jangan menggunakan S3.",
+    "Jangan membuat kebutuhan VPS.",
+    "Jangan menggunakan Docker jika tidak diperlukan.",
+    "Jangan menggunakan Kubernetes.",
+    "Jangan menggunakan microservices.",
+    "Jangan membuat arsitektur terlalu kompleks.",
+    "Kerjakan fitur secara bertahap."
+  ],
+  "golden_rule": "Jangan membuat fitur hanya karena terlihat keren. Setiap fitur harus memiliki manfaat nyata bagi siswa, guru, perusahaan, atau admin."
+}
