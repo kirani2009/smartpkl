@@ -24,13 +24,13 @@ class CompanyProfileController extends Controller
      */
     public function show(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = Company::where('user_id', $request->user()->id)
+            ->with('profile')
+            ->first();
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
         }
-
-        $company->load('profile');
 
         return $this->success(new CompanyResource($company), 'Profil perusahaan berhasil diambil.');
     }
@@ -42,13 +42,20 @@ class CompanyProfileController extends Controller
     {
         $user = $request->user();
 
-        if ($user->company) {
+        $company = Company::where('user_id', $user->id)->first();
+
+        // Jika company sudah ada tapi belum ada profile (skeleton dari registrasi),
+        // buat profile-nya.
+        if ($company && $company->profile) {
             return $this->error('Profil perusahaan sudah ada. Gunakan PUT untuk memperbarui.', null, 409);
         }
 
-        $company = $user->company()->create([
-            'status' => Company::STATUS_ACTIVE,
-        ]);
+        if (! $company) {
+            $company = Company::create([
+                'user_id' => $user->id,
+                'status' => Company::STATUS_ACTIVE,
+            ]);
+        }
 
         $company->profile()->create($request->validated());
         $company->load('profile');
@@ -61,7 +68,9 @@ class CompanyProfileController extends Controller
      */
     public function update(UpdateCompanyProfileRequest $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = Company::where('user_id', $request->user()->id)
+            ->with('profile')
+            ->first();
 
         if (! $company) {
             return $this->error('Profil perusahaan belum ada. Gunakan POST untuk membuat profil.', null, 404);

@@ -42,11 +42,20 @@ class TeacherProfileController extends Controller
     {
         $user = $request->user();
 
-        if ($user->teacher) {
+        // Jika skeleton sudah ada (dari registrasi), update.
+        // Jika profil lengkap sudah ada, tolak.
+        $teacher = $user->teacher;
+        if ($teacher && $teacher->school_id) {
             return $this->error('Profil guru sudah ada. Gunakan PUT untuk memperbarui.', null, 409);
         }
 
-        $teacher = $user->teacher()->create($request->validated());
+        if ($teacher) {
+            // Update skeleton yang dibuat saat registrasi.
+            $teacher->update($request->validated());
+        } else {
+            $teacher = $user->teacher()->create($request->validated());
+        }
+
         $teacher->load('school');
 
         return $this->success(new TeacherResource($teacher), 'Profil guru berhasil dibuat.', 201);

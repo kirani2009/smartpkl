@@ -26,19 +26,19 @@ export default function AdminDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Perusahaan</p>
-            <p className="mt-1 text-2xl font-bold text-blue-600">{stats.total_companies || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_companies || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Siswa</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.total_students || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_students || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Guru</p>
-            <p className="mt-1 text-2xl font-bold text-purple-600">{stats.total_teachers || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_teachers || 0}</p>
           </Card.Body>
         </Card>
       </div>
@@ -47,13 +47,13 @@ export default function AdminDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.active_partnerships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_partnerships || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Lowongan Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-blue-600">{stats.active_internships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_internships || 0}</p>
           </Card.Body>
         </Card>
         <Card>
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Siswa Ditempatkan</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.students_placed || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.students_placed || 0}</p>
           </Card.Body>
         </Card>
       </div>

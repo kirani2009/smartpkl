@@ -1,11 +1,33 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFetch } from '../../hooks/useApi';
 import { Card, LoadingState, ErrorState } from '../../components/ui';
 
 export default function CompanyDashboard() {
+  const navigate = useNavigate();
   const { data: dashboard, loading, error, refetch } = useFetch('/company/dashboard');
+  const { data: profile, loading: profileLoading } = useFetch('/me/company');
 
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} onRetry={refetch} />;
+  // Check if company profile exists
+  useEffect(() => {
+    if (!loading && !profileLoading) {
+      // If dashboard returns 404 or profile doesn't exist, redirect to setup
+      if (error && error.includes('belum dibuat')) {
+        navigate('/company/profile/setup', { replace: true });
+      }
+      if (profile && !profile.profile) {
+        navigate('/company/profile/setup', { replace: true });
+      }
+    }
+  }, [error, profile, loading, profileLoading, navigate]);
+
+  if (loading || profileLoading) return <LoadingState />;
+  if (error && !error.includes('belum dibuat')) return <ErrorState message={error} onRetry={refetch} />;
+
+  // If redirected to setup, don't render dashboard
+  if (error?.includes('belum dibuat') || (profile && !profile.profile)) {
+    return <LoadingState text="Mengalihkan ke pengaturan profil..." />;
+  }
 
   const stats = dashboard || {};
 
@@ -20,7 +42,7 @@ export default function CompanyDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Lowongan Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-blue-600">{stats.active_internships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_internships || 0}</p>
           </Card.Body>
         </Card>
         <Card>
@@ -32,7 +54,7 @@ export default function CompanyDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.active_partnerships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_partnerships || 0}</p>
           </Card.Body>
         </Card>
         <Card>
@@ -43,7 +65,6 @@ export default function CompanyDashboard() {
         </Card>
       </div>
 
-      {/* Recent applicants */}
       {stats.recent_applicants?.length > 0 && (
         <Card>
           <Card.Header>
@@ -59,7 +80,7 @@ export default function CompanyDashboard() {
                   </div>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     app.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                    app.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                    app.status === 'ACCEPTED' ? 'bg-brand-100 text-brand-700' :
                     'bg-slate-100 text-slate-600'
                   }`}>
                     {app.status}

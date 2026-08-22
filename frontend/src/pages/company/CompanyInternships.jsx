@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFetch, useMutation } from '../../hooks/useApi';
-import { Card, Button, Input, Select, Modal, StatusBadge, Table, LoadingState, EmptyState, ErrorState } from '../../components/ui';
+import { Card, Button, Input, Modal, StatusBadge, Table, LoadingState, EmptyState, ErrorState } from '../../components/ui';
 
 export default function CompanyInternships() {
   const { data, loading, error, refetch } = useFetch('/company/internships');
@@ -71,7 +71,7 @@ export default function CompanyInternships() {
           <div>
             <label className="block text-sm font-medium text-slate-700">Deskripsi</label>
             <textarea
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               rows={4}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}

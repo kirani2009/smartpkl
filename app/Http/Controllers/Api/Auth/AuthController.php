@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Company;
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +32,20 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create($request->validated());
+
+        // Auto-create skeleton profile berdasarkan role.
+        // Teacher & student hanya perlu user_id (school_id nullable untuk
+        // diisi nanti saat user melengkapi profil). Company perlu row
+        // terpisah di tabel companies (company_profiles diisi via setup).
+        match ($user->role) {
+            'teacher' => $user->teacher()->create([]),
+            'student' => $user->student()->create([]),
+            'company' => Company::create([
+                'user_id' => $user->id,
+                'status' => Company::STATUS_ACTIVE,
+            ]),
+            default => null,
+        };
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

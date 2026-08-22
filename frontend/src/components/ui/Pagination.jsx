@@ -1,6 +1,3 @@
-/**
- * Pagination — simple numbered pagination.
- */
 export default function Pagination({ meta, onPageChange }) {
   if (!meta || meta.last_page <= 1) return null;
 
@@ -24,7 +21,7 @@ export default function Pagination({ meta, onPageChange }) {
           onClick={() => onPageChange(p)}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
             p === meta.current_page
-              ? 'bg-blue-600 text-white'
+              ? 'bg-brand-600 text-white'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >

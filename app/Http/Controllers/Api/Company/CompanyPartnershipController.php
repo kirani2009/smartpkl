@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Company;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,14 +16,14 @@ use Illuminate\Http\Request;
  */
 class CompanyPartnershipController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     /**
      * GET /api/company/partnerships — daftar partnership untuk perusahaan ini.
      */
     public function index(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 404);
@@ -51,7 +52,7 @@ class CompanyPartnershipController extends Controller
      */
     public function show(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $partnership->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
@@ -67,7 +68,7 @@ class CompanyPartnershipController extends Controller
      */
     public function accept(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $partnership->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
@@ -90,7 +91,7 @@ class CompanyPartnershipController extends Controller
      */
     public function reject(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $partnership->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);

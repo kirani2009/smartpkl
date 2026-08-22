@@ -27,13 +27,13 @@ export default function TeacherDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.active_partnerships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_partnerships || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Siswa Ditempatkan</p>
-            <p className="mt-1 text-2xl font-bold text-blue-600">{stats.students_placed || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.students_placed || 0}</p>
           </Card.Body>
         </Card>
         <Card>
@@ -44,7 +44,6 @@ export default function TeacherDashboard() {
         </Card>
       </div>
 
-      {/* Recent partnerships */}
       {stats.recent_partnerships?.length > 0 && (
         <Card>
           <Card.Header>
@@ -59,7 +58,7 @@ export default function TeacherDashboard() {
                     <p className="text-xs text-slate-500">Diajukan: {new Date(p.created_at).toLocaleDateString('id-ID')}</p>
                   </div>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    p.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                    p.status === 'ACTIVE' ? 'bg-brand-100 text-brand-700' :
                     p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-slate-100 text-slate-600'
                   }`}>

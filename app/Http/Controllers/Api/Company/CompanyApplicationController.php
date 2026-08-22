@@ -9,6 +9,7 @@ use App\Models\Application;
 use App\Models\ApplicationStatusHistory;
 use App\Models\Interview;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,14 +19,14 @@ use Illuminate\Http\Request;
  */
 class CompanyApplicationController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     /**
      * GET /api/company/applications — daftar semua pelamar untuk lowongan perusahaan ini.
      */
     public function index(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 404);
@@ -55,7 +56,7 @@ class CompanyApplicationController extends Controller
      */
     public function show(Request $request, Application $application): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 403);
@@ -82,7 +83,7 @@ class CompanyApplicationController extends Controller
      */
     public function updateStatus(Request $request, Application $application): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $application->internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke lamaran ini.', null, 403);
@@ -124,7 +125,7 @@ class CompanyApplicationController extends Controller
      */
     public function scheduleInterview(Request $request, Application $application): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $application->internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke lamaran ini.', null, 403);

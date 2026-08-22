@@ -54,7 +54,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <Card.Header>
           <div className="flex items-center justify-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">P</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">P</span>
             <span className="text-lg font-bold text-slate-900">SmartPKL</span>
           </div>
         </Card.Header>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
 
           <p className="mt-4 text-center text-sm text-slate-500">
             Sudah punya akun?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:underline">
+            <Link to="/login" className="font-medium text-brand-600 hover:underline">
               Masuk
             </Link>
           </p>

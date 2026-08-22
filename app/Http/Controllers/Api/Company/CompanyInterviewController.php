@@ -7,6 +7,7 @@ use App\Http\Resources\InterviewResource;
 use App\Models\Application;
 use App\Models\Interview;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,14 +17,14 @@ use Illuminate\Http\Request;
  */
 class CompanyInterviewController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     /**
      * GET /api/company/interviews — daftar interview untuk lowongan perusahaan ini.
      */
     public function index(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 404);
@@ -57,7 +58,7 @@ class CompanyInterviewController extends Controller
      */
     public function show(Request $request, Interview $interview): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $interview->application->internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke interview ini.', null, 403);
@@ -81,7 +82,7 @@ class CompanyInterviewController extends Controller
      */
     public function complete(Request $request, Interview $interview): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $interview->application->internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke interview ini.', null, 403);
@@ -101,7 +102,7 @@ class CompanyInterviewController extends Controller
      */
     public function cancel(Request $request, Interview $interview): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $interview->application->internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke interview ini.', null, 403);

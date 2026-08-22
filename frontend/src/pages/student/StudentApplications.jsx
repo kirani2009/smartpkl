@@ -34,7 +34,7 @@ export default function StudentApplications() {
             key={opt.value}
             onClick={() => { setStatus(opt.value); setPage(1); }}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-              status === opt.value ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              status === opt.value ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             {opt.label}
@@ -58,7 +58,7 @@ export default function StudentApplications() {
                     <div>
                       <Link
                         to={`/student/applications/${app.id}`}
-                        className="text-sm font-semibold text-slate-900 hover:text-blue-600"
+                        className="text-sm font-semibold text-slate-900 hover:text-brand-600"
                       >
                         {app.internship?.title}
                       </Link>

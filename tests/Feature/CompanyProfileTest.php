@@ -92,7 +92,9 @@ class CompanyProfileTest extends TestCase
         $user = User::factory()->create(['role' => 'company']);
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        $user->company()->create(['status' => 'active']);
+        // Buat company + profile lengkap.
+        $company = $user->company()->create(['status' => 'active']);
+        $company->profile()->create(['name' => 'PT Existing']);
 
         $this->withToken($token)
             ->postJson('/api/me/company', ['name' => 'Duplicate'])

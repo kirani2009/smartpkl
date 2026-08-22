@@ -16,6 +16,7 @@ const navConfig = {
   ],
   company: [
     { to: '/company/dashboard', label: 'Dashboard', icon: '🏠' },
+    { to: '/company/profile/setup', label: 'Profil Perusahaan', icon: '🏢' },
     { to: '/company/partnerships', label: 'Partnership', icon: '🤝' },
     { to: '/company/internships', label: 'Lowongan PKL', icon: '📋' },
     { to: '/company/applicants', label: 'Pelamar', icon: '👥' },
@@ -31,7 +32,7 @@ export default function Sidebar({ role, onNavigate }) {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-slate-200 bg-white">
       <div className="flex items-center gap-2 border-b border-slate-200 px-6 py-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
           P
         </span>
         <span className="text-lg font-bold text-slate-900">SmartPKL</span>
@@ -46,7 +47,7 @@ export default function Sidebar({ role, onNavigate }) {
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700'
+                  ? 'bg-brand-50 text-brand-700'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }

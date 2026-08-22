@@ -42,11 +42,20 @@ class StudentProfileController extends Controller
     {
         $user = $request->user();
 
-        if ($user->student) {
+        // Jika skeleton sudah ada (dari registrasi), update.
+        // Jika profil lengkap sudah ada, tolak.
+        $student = $user->student;
+        if ($student && $student->school_id) {
             return $this->error('Profil siswa sudah ada. Gunakan PUT untuk memperbarui.', null, 409);
         }
 
-        $student = $user->student()->create($request->validated());
+        if ($student) {
+            // Update skeleton yang dibuat saat registrasi.
+            $student->update($request->validated());
+        } else {
+            $student = $user->student()->create($request->validated());
+        }
+
         $student->load(['school', 'major']);
 
         return $this->success(new StudentResource($student), 'Profil siswa berhasil dibuat.', 201);

@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\InternshipListing;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,14 +17,18 @@ use Illuminate\Http\Request;
  */
 class CompanyReportController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     /**
      * GET /api/company/reports/applications — Laporan lamaran perusahaan.
      */
     public function applications(Request $request): JsonResponse
     {
-        $companyId = $request->user()->company->id;
+        $company = $this->resolveCompany($request);
+        if (! $company) {
+            return $this->error('Profil perusahaan belum dibuat.', null, 404);
+        }
+        $companyId = $company->id;
 
         $query = Application::with([
             'student:id,user_id,school_id,major_id',
@@ -86,7 +91,11 @@ class CompanyReportController extends Controller
      */
     public function internships(Request $request): JsonResponse
     {
-        $companyId = $request->user()->company->id;
+        $company = $this->resolveCompany($request);
+        if (! $company) {
+            return $this->error('Profil perusahaan belum dibuat.', null, 404);
+        }
+        $companyId = $company->id;
 
         $internships = InternshipListing::with(['school:id,name', 'major:id,name'])
             ->where('company_id', $companyId)
@@ -128,7 +137,11 @@ class CompanyReportController extends Controller
      */
     public function partnerships(Request $request): JsonResponse
     {
-        $companyId = $request->user()->company->id;
+        $company = $this->resolveCompany($request);
+        if (! $company) {
+            return $this->error('Profil perusahaan belum dibuat.', null, 404);
+        }
+        $companyId = $company->id;
 
         $partnerships = SchoolCompanyPartnership::with(['school:id,name'])
             ->where('company_id', $companyId)

@@ -10,6 +10,7 @@ use App\Models\InternshipListing;
 use App\Models\InternshipRequirement;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,14 +21,14 @@ use Illuminate\Support\Facades\DB;
  */
 class CompanyInternshipController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     /**
      * GET /api/company/internships — daftar lowongan milik perusahaan ini.
      */
     public function index(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 404);
@@ -62,7 +63,7 @@ class CompanyInternshipController extends Controller
      */
     public function show(Request $request, InternshipListing $internship): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke lowongan ini.', null, 403);
@@ -79,7 +80,7 @@ class CompanyInternshipController extends Controller
      */
     public function store(StoreInternshipRequest $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat.', null, 404);
@@ -133,7 +134,7 @@ class CompanyInternshipController extends Controller
      */
     public function update(UpdateInternshipRequest $request, InternshipListing $internship): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke lowongan ini.', null, 403);
@@ -185,7 +186,7 @@ class CompanyInternshipController extends Controller
      */
     public function destroy(Request $request, InternshipListing $internship): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company || $internship->company_id !== $company->id) {
             return $this->error('Anda tidak memiliki akses ke lowongan ini.', null, 403);

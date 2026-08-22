@@ -36,7 +36,7 @@ export default function StudentInternships() {
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
         >
           🔍 Cari
         </button>
@@ -53,7 +53,7 @@ export default function StudentInternships() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((internship) => (
               <Link key={internship.id} to={`/internships/${internship.id}`}>
-                <Card className="h-full transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full transition hover:-translate-y-1 hover:shadow-md hover:border-brand-300">
                   <Card.Body>
                     <h3 className="font-semibold text-slate-900">{internship.title}</h3>
                     <p className="mt-1 text-sm text-slate-600">{internship.company?.name}</p>
@@ -62,10 +62,10 @@ export default function StudentInternships() {
                         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">📍 {internship.location}</span>
                       )}
                       {internship.major?.name && (
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">{internship.major.name}</span>
+                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700">{internship.major.name}</span>
                       )}
                       {internship.quota && (
-                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">Kuota: {internship.quota}</span>
+                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700">Kuota: {internship.quota}</span>
                       )}
                     </div>
                     {internship.description && (

@@ -40,23 +40,23 @@ export default function LandingPage() {
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 text-lg font-bold text-slate-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">P</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">P</span>
             SmartPKL
           </Link>
           <nav className="hidden gap-6 text-sm font-medium text-slate-600 sm:flex">
-            <a href="#features" className="transition hover:text-blue-600">Fitur</a>
-            <a href="#about" className="transition hover:text-blue-600">Tentang</a>
+            <a href="#features" className="transition hover:text-brand-600">Fitur</a>
+            <a href="#about" className="transition hover:text-brand-600">Tentang</a>
           </nav>
           <div className="flex gap-2">
             <Link
               to="/login"
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-400 hover:text-blue-600"
+              className="rounded-lg border border-brand-600 bg-white px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
             >
               Masuk
             </Link>
             <Link
               to="/register"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
             >
               Daftar
             </Link>
@@ -66,7 +66,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-        <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-sm font-medium text-blue-700">
+        <span className="inline-block rounded-full bg-brand-100 px-4 py-1 text-sm font-medium text-brand-700">
           Platform Praktik Kerja Lapangan Digital
         </span>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
@@ -79,13 +79,13 @@ export default function LandingPage() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/internships"
-            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700"
+            className="rounded-lg bg-brand-600 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:bg-brand-700"
           >
             Cari Lowongan PKL
           </Link>
           <Link
             to="/register"
-            className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:border-blue-400 hover:text-blue-600"
+            className="rounded-lg border border-brand-600 bg-white px-6 py-3 font-semibold text-brand-700 transition hover:bg-brand-50"
           >
             Untuk Sekolah & Perusahaan
           </Link>
@@ -102,7 +102,7 @@ export default function LandingPage() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:border-brand-300"
             >
               <div className="text-3xl">{feature.icon}</div>
               <h3 className="mt-4 font-semibold text-slate-900">{feature.title}</h3>

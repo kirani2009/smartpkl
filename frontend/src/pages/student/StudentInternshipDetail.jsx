@@ -31,7 +31,7 @@ export default function StudentInternshipDetail() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link to="/internships" className="text-sm text-blue-600 hover:underline">← Kembali ke daftar lowongan</Link>
+      <Link to="/internships" className="text-sm text-brand-600 hover:underline">← Kembali ke daftar lowongan</Link>
 
       <Card>
         <Card.Header>
@@ -90,7 +90,7 @@ export default function StudentInternshipDetail() {
               <p className="text-xs font-medium text-slate-500">Skill yang dibutuhkan</p>
               <div className="mt-1 flex flex-wrap gap-2">
                 {internship.skills.map((skill) => (
-                  <span key={skill.id} className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-700">
+                  <span key={skill.id} className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs text-brand-700">
                     {skill.name}
                   </span>
                 ))}
@@ -107,12 +107,12 @@ export default function StudentInternshipDetail() {
         </Card.Header>
         <Card.Body className="space-y-4">
           {result && (
-            <div className={`rounded-lg p-3 text-sm ${result.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            <div className={`rounded-lg p-3 text-sm ${result.type === 'success' ? 'bg-brand-50 text-brand-700' : 'bg-red-50 text-red-700'}`}>
               {result.text}
             </div>
           )}
           <textarea
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             rows={4}
             placeholder="Tulis pesan untuk perusahaan (opsional)..."
             value={message}

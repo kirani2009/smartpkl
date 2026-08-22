@@ -27,6 +27,17 @@ class TeacherDashboardController extends Controller
             return $this->error('Profil guru belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
         }
 
+        // Jika profil skeleton (belum lengkap), kembalikan data kosong
+        // agar frontend bisa redirect ke halaman setup profil.
+        if (! $teacher->school_id) {
+            return $this->success([
+                'school' => null,
+                'students' => ['total' => 0, 'placed' => 0, 'without_internship' => 0],
+                'partnerships' => ['total' => 0, 'active' => 0, 'pending' => 0],
+                'recent_applications' => [],
+            ], 'Profil guru belum lengkap.');
+        }
+
         $schoolId = $teacher->school_id;
 
         $totalStudents = Student::where('school_id', $schoolId)->count();

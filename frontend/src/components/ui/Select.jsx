@@ -13,7 +13,7 @@ const Select = forwardRef(function Select(
       )}
       <select
         ref={ref}
-        className={`block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+        className={`block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 ${
           error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
         } ${className}`}
         {...props}

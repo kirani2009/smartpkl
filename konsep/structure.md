@@ -6,7 +6,7 @@ SmartPKL/
 ├── resources/
 ├── frontend/
 ├── mobile/
-│
+
 ├── docs/
 │   └── ai/
 │       ├── MASTER.json

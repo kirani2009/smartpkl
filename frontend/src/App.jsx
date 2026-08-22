@@ -24,6 +24,7 @@ import TeacherReports from './pages/teacher/TeacherReports';
 
 // Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
+import CompanyProfileSetup from './pages/company/CompanyProfileSetup';
 import CompanyPartnerships from './pages/company/CompanyPartnerships';
 import CompanyInternships from './pages/company/CompanyInternships';
 import CompanyApplicants from './pages/company/CompanyApplicants';
@@ -98,6 +99,11 @@ export default function App() {
           <Route path="/company/dashboard" element={
             <ProtectedRoute allowedRoles={['company']}>
               <CompanyDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/company/profile/setup" element={
+            <ProtectedRoute allowedRoles={['company']}>
+              <CompanyProfileSetup />
             </ProtectedRoute>
           } />
           <Route path="/company/partnerships" element={

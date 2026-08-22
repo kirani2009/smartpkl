@@ -34,7 +34,7 @@ export default function StudentDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Diterima</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">
+            <p className="mt-1 text-2xl font-bold text-brand-600">
               {applications?.items?.filter((a) => a.status === 'ACCEPTED').length || 0}
             </p>
           </Card.Body>
@@ -42,7 +42,7 @@ export default function StudentDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Rekomendasi</p>
-            <p className="mt-1 text-2xl font-bold text-blue-600">{matchings?.length || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{matchings?.length || 0}</p>
           </Card.Body>
         </Card>
       </div>
@@ -87,7 +87,7 @@ export default function StudentDashboard() {
                     <p className="text-sm font-medium text-slate-900">{m.internship?.title}</p>
                     <p className="text-xs text-slate-500">{m.internship?.company?.name} · {m.internship?.location}</p>
                   </div>
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                  <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">
                     {m.match_score}% cocok
                   </span>
                 </div>

@@ -107,7 +107,7 @@ export default function CompanyApplicants() {
                 <p className="text-xs text-slate-500">Skill</p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {selectedApp.student.skills.map((s) => (
-                    <span key={s.id} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">{s.name}</span>
+                    <span key={s.id} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700">{s.name}</span>
                   ))}
                 </div>
               </div>

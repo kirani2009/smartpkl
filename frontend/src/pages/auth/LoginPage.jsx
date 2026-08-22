@@ -29,7 +29,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <Card.Header>
           <div className="flex items-center justify-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">P</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">P</span>
             <span className="text-lg font-bold text-slate-900">SmartPKL</span>
           </div>
         </Card.Header>
@@ -64,7 +64,7 @@ export default function LoginPage() {
 
           <p className="mt-4 text-center text-sm text-slate-500">
             Belum punya akun?{' '}
-            <Link to="/register" className="font-medium text-blue-600 hover:underline">
+            <Link to="/register" className="font-medium text-brand-600 hover:underline">
               Daftar
             </Link>
           </p>

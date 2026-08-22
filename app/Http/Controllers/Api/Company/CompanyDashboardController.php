@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
+use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,11 +17,11 @@ use Illuminate\Http\Request;
  */
 class CompanyDashboardController extends Controller
 {
-    use ApiResponseTrait;
+    use ApiResponseTrait, HasCompany;
 
     public function show(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $company = $this->resolveCompany($request);
 
         if (! $company) {
             return $this->error('Profil perusahaan belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
