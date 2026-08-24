@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../../api/api';
 import { useFetch, useMutation } from '../../hooks/useApi';
 import { Card, Button, Input, Modal, StatusBadge, Table, LoadingState, EmptyState, ErrorState } from '../../components/ui';
 
@@ -36,13 +37,11 @@ export default function CompanyInternships() {
   const [majors, setMajors] = useState([]);
   useEffect(() => {
     if (form.school_id) {
-      import('../../api/api').then(({ default: api }) => {
-        api.get(`/schools/${form.school_id}/majors`).then((res) => {
-          if (res.data.success) {
-            setMajors(res.data.data?.items || res.data.data || []);
-          }
-        }).catch(() => setMajors([]));
-      });
+      api.get(`/schools/${form.school_id}/majors`).then((res) => {
+        if (res.data.success) {
+          setMajors(res.data.data?.items || res.data.data || []);
+        }
+      }).catch(() => setMajors([]));
     } else {
       setMajors([]);
       setForm((f) => ({ ...f, major_id: '' }));

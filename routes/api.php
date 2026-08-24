@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\School\MajorController;
+use App\Http\Controllers\Api\School\SchoolController;
 
 use App\Http\Controllers\Api\Student\StudentCertificateController;
 use App\Http\Controllers\Api\Student\StudentDocumentController;
