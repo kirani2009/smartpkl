@@ -11,11 +11,10 @@ export default function CompanyDashboard() {
   // Check if company profile exists
   useEffect(() => {
     if (!loading && !profileLoading) {
-      // If dashboard returns 404 or profile doesn't exist, redirect to setup
       if (error && error.includes('belum dibuat')) {
         navigate('/company/profile/setup', { replace: true });
       }
-      if (profile && !profile.profile) {
+      if (profile && !profile?.data?.profile) {
         navigate('/company/profile/setup', { replace: true });
       }
     }
@@ -24,12 +23,18 @@ export default function CompanyDashboard() {
   if (loading || profileLoading) return <LoadingState />;
   if (error && !error.includes('belum dibuat')) return <ErrorState message={error} onRetry={refetch} />;
 
-  // If redirected to setup, don't render dashboard
-  if (error?.includes('belum dibuat') || (profile && !profile.profile)) {
+  if (error?.includes('belum dibuat') || (profile && !profile?.data?.profile)) {
     return <LoadingState text="Mengalihkan ke pengaturan profil..." />;
   }
 
+  // Backend response structure:
+  // { company, partnerships, internship_listings, applicants, recent_applications }
   const stats = dashboard || {};
+
+  const internshipListings = stats.internship_listings || {};
+  const applicants = stats.applicants || {};
+  const partnerships = stats.partnerships || {};
+  const recentApplications = stats.recent_applications || [];
 
   return (
     <div className="space-y-6">
@@ -42,41 +47,41 @@ export default function CompanyDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Lowongan Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_internships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{internshipListings.published || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Pelamar</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{stats.total_applicants || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{applicants.total || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_partnerships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{partnerships.active || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Menunggu Review</p>
-            <p className="mt-1 text-2xl font-bold text-yellow-600">{stats.pending_review || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-yellow-600">{applicants.pending || 0}</p>
           </Card.Body>
         </Card>
       </div>
 
-      {stats.recent_applicants?.length > 0 && (
+      {recentApplications.length > 0 && (
         <Card>
           <Card.Header>
             <h2 className="font-semibold text-slate-900">Pelamar Terbaru</h2>
           </Card.Header>
           <Card.Body>
             <div className="space-y-3">
-              {stats.recent_applicants.map((app) => (
+              {recentApplications.map((app) => (
                 <div key={app.id} className="flex items-center justify-between rounded-lg border border-slate-100 p-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{app.student?.user?.name}</p>
-                    <p className="text-xs text-slate-500">{app.internship?.title}</p>
+                    <p className="text-sm font-medium text-slate-900">{app.student_name}</p>
+                    <p className="text-xs text-slate-500">{app.internship_title}</p>
                   </div>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     app.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :

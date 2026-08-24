@@ -11,10 +11,11 @@ use App\Http\Controllers\Api\Admin\AdminReportController;
 use App\Http\Controllers\Api\Company\CompanyReportController;
 use App\Http\Controllers\Api\Company\CompanySelectionController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\School\MajorController;
-use App\Http\Controllers\Api\School\SchoolController;
+
 use App\Http\Controllers\Api\Student\StudentCertificateController;
 use App\Http\Controllers\Api\Student\StudentDocumentController;
 use App\Http\Controllers\Api\Student\StudentInterviewController;
@@ -80,6 +81,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Sekolah: lihat untuk semua user login, kelola hanya admin.
     Route::get('/schools', [SchoolController::class, 'index']);
     Route::get('/schools/{school}', [SchoolController::class, 'show']);
+
+    // Skills: daftar semua skill (read-only, untuk form lowongan).
+    Route::get('/skills', [SkillController::class, 'index']);
 
     // Jurusan: daftar per sekolah (kelola via MajorPolicy: guru sekolah/admin).
     Route::get('/schools/{school}/majors', [MajorController::class, 'index']);

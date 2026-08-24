@@ -7,7 +7,16 @@ export default function AdminDashboard() {
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
+  // Backend response structure:
+  // { users, schools, companies, students, partnerships, internships, applications }
   const stats = data || {};
+  const users = stats.users || {};
+  const schools = stats.schools || {};
+  const companies = stats.companies || {};
+  const students = stats.students || {};
+  const partnerships = stats.partnerships || {};
+  const internships = stats.internships || {};
+  const applications = stats.applications || {};
 
   return (
     <div className="space-y-6">
@@ -20,25 +29,25 @@ export default function AdminDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Sekolah</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{stats.total_schools || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{schools.total || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Perusahaan</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_companies || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{companies.total || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Siswa</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_students || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{students.total || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Guru</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.total_teachers || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{users.teachers || 0}</p>
           </Card.Body>
         </Card>
       </div>
@@ -47,25 +56,25 @@ export default function AdminDashboard() {
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_partnerships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{partnerships.active || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Lowongan Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.active_internships || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{internships.published || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
             <p className="text-sm text-slate-500">Total Lamaran</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{stats.total_applications || 0}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{applications.total || 0}</p>
           </Card.Body>
         </Card>
         <Card>
           <Card.Body>
-            <p className="text-sm text-slate-500">Siswa Ditempatkan</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{stats.students_placed || 0}</p>
+            <p className="text-sm text-slate-500">Lamaran Diterima</p>
+            <p className="mt-1 text-2xl font-bold text-brand-600">{applications.accepted || 0}</p>
           </Card.Body>
         </Card>
       </div>

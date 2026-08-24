@@ -2,11 +2,11 @@ const statusColors = {
   PENDING: 'yellow',
   ACTIVE: 'green',
   ACCEPTED: 'green',
+  REVIEWED: 'blue',
   REJECTED: 'red',
   CANCELLED: 'red',
   COMPLETED: 'green',
-  INTERVIEW: 'green',
-  REVIEW: 'green',
+  INTERVIEW: 'blue',
   PUBLISHED: 'green',
   DRAFT: 'gray',
   CLOSED: 'gray',
@@ -21,6 +21,7 @@ export default function StatusBadge({ status, className = '' }) {
     green: 'bg-brand-100 text-brand-700',
     yellow: 'bg-yellow-100 text-yellow-700',
     red: 'bg-red-100 text-red-700',
+    blue: 'bg-blue-100 text-blue-700',
     gray: 'bg-slate-100 text-slate-600',
   }[color];
 

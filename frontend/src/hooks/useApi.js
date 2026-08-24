@@ -11,7 +11,7 @@ export function useFetch(url, options = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { params, enabled = true } = options;
+  const { params = {}, enabled = true } = options;
 
   const fetchData = useCallback(async () => {
     if (!enabled || !url) return;

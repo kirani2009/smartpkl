@@ -1,16 +1,21 @@
+import { useState } from 'react';
 import { useFetch, useMutation } from '../../hooks/useApi';
-import { Card, Button, StatusBadge, LoadingState, EmptyState, ErrorState } from '../../components/ui';
+import { Card, Button, StatusBadge, LoadingState, EmptyState, ErrorState, Modal } from '../../components/ui';
 
 export default function CompanyPartnerships() {
   const { data, loading, error, refetch } = useFetch('/company/partnerships');
   const { mutate } = useMutation();
+  const [confirmAction, setConfirmAction] = useState(null); // { id, action, label }
 
-  const handleAction = async (id, action) => {
+  const handleConfirmAction = async () => {
+    if (!confirmAction) return;
     try {
-      await mutate('put', `/company/partnerships/${id}/${action}`);
+      await mutate('put', `/company/partnerships/${confirmAction.id}/${confirmAction.action}`);
       refetch();
     } catch {
       // handled
+    } finally {
+      setConfirmAction(null);
     }
   };
 
@@ -39,10 +44,10 @@ export default function CompanyPartnerships() {
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{p.school?.name}</p>
                       <p className="text-xs text-slate-500">
-                        Guru: {p.teacher?.user?.name || '-'}
+                        Guru: {p.requester?.name || '-'}
                       </p>
-                      {p.message && (
-                        <p className="mt-2 text-xs text-slate-600 italic">"{p.message}"</p>
+                      {p.notes && (
+                        <p className="mt-2 text-xs text-slate-600 italic">"{p.notes}"</p>
                       )}
                       <p className="mt-1 text-xs text-slate-400">
                         Diajukan: {new Date(p.created_at).toLocaleDateString('id-ID')}
@@ -55,14 +60,14 @@ export default function CompanyPartnerships() {
                     <div className="mt-3 flex gap-2">
                       <Button
                         size="sm"
-                        onClick={() => handleAction(p.id, 'accept')}
+                        onClick={() => setConfirmAction({ id: p.id, action: 'accept', label: `Terima partnership dari ${p.school?.name}?` })}
                       >
                         ✅ Terima
                       </Button>
                       <Button
                         size="sm"
                         variant="danger"
-                        onClick={() => handleAction(p.id, 'reject')}
+                        onClick={() => setConfirmAction({ id: p.id, action: 'reject', label: `Tolak partnership dari ${p.school?.name}?` })}
                       >
                         ❌ Tolak
                       </Button>
@@ -74,6 +79,22 @@ export default function CompanyPartnerships() {
           )}
         </Card.Body>
       </Card>
+
+      {/* Confirmation Modal */}
+      <Modal open={!!confirmAction} onClose={() => setConfirmAction(null)} title="Konfirmasi">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-700">{confirmAction?.label}</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setConfirmAction(null)}>Batal</Button>
+            <Button
+              variant={confirmAction?.action === 'reject' ? 'danger' : 'primary'}
+              onClick={handleConfirmAction}
+            >
+              {confirmAction?.action === 'accept' ? 'Ya, Terima' : 'Ya, Tolak'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

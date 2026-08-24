@@ -60,9 +60,9 @@ export default function StudentInternshipDetail() {
             <div>
               <p className="text-xs font-medium text-slate-500">Periode</p>
               <p className="text-sm text-slate-900">
-                {internship.start_date ? new Date(internship.start_date).toLocaleDateString('id-ID') : '-'}
+                {internship.period_start ? new Date(internship.period_start).toLocaleDateString('id-ID') : '-'}
                 {' — '}
-                {internship.end_date ? new Date(internship.end_date).toLocaleDateString('id-ID') : '-'}
+                {internship.period_end ? new Date(internship.period_end).toLocaleDateString('id-ID') : '-'}
               </p>
             </div>
           </div>
