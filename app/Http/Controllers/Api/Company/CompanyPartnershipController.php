@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PartnershipResource;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
 use App\Traits\HasCompany;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 /**
  * PHASE 5 — Company.
  * Pengelolaan partnership dari sisi perusahaan.
- * Company melihat partnership masuk dan bisa accept/reject.
+ * Perusahaan mengajukan kerja sama ke sekolah.
  */
 class CompanyPartnershipController extends Controller
 {
@@ -61,6 +62,66 @@ class CompanyPartnershipController extends Controller
         $partnership->load(['school', 'requester']);
 
         return $this->success($partnership, 'Detail partnership berhasil diambil.');
+    }
+
+    /**
+     * POST /api/company/partnerships — ajukan partnership ke sekolah.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $company = $this->resolveCompany($request);
+
+        if (! $company) {
+            return $this->error('Profil perusahaan belum dibuat.', null, 404);
+        }
+
+        $request->validate([
+            'school_id' => ['required', 'exists:schools,id'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $schoolId = $request->input('school_id');
+
+        // Cek apakah sudah ada partnership antara perusahaan dan sekolah ini
+        $existing = SchoolCompanyPartnership::where('company_id', $company->id)
+            ->where('school_id', $schoolId)
+            ->first();
+
+        if ($existing) {
+            if ($existing->status === SchoolCompanyPartnership::STATUS_PENDING) {
+                return $this->error('Pengajuan partnership ke sekolah ini sudah ada dan sedang menunggu jawaban.', null, 409);
+            }
+            if ($existing->status === SchoolCompanyPartnership::STATUS_ACCEPTED) {
+                return $this->error('Sudah ada partnership aktif dengan sekolah ini.', null, 409);
+            }
+            // Re-submit if REJECTED or EXPIRED
+            $existing->update([
+                'status' => SchoolCompanyPartnership::STATUS_PENDING,
+                'requested_by' => $request->user()->id,
+                'responded_at' => null,
+                'notes' => $request->input('notes'),
+            ]);
+
+            return $this->success(
+                new PartnershipResource($existing->fresh(['school', 'requester'])),
+                'Pengajuan partnership berhasil dikirim ulang.',
+                201
+            );
+        }
+
+        $partnership = SchoolCompanyPartnership::create([
+            'school_id' => $schoolId,
+            'company_id' => $company->id,
+            'requested_by' => $request->user()->id,
+            'status' => SchoolCompanyPartnership::STATUS_PENDING,
+            'notes' => $request->input('notes'),
+        ]);
+
+        return $this->success(
+            new PartnershipResource($partnership->load(['school', 'requester'])),
+            'Pengajuan partnership berhasil dikirim.',
+            201
+        );
     }
 
     /**

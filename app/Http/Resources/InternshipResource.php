@@ -27,6 +27,7 @@ class InternshipResource extends JsonResource
             'location' => $this->location,
             'allowance' => $this->allowance,
             'facilities' => $this->facilities,
+            'required_skills' => $this->required_skills,
             'status' => $this->status,
             'applications_count' => $this->whenCounted('applications'),
             'requirements' => InternshipRequirementResource::collection($this->whenLoaded('requirements')),

@@ -11,10 +11,12 @@ export default function CompanyDashboard() {
   // Check if company profile exists
   useEffect(() => {
     if (!loading && !profileLoading) {
+      // API returns { success, message, data: CompanyResource }
+      // CompanyResource has a 'profile' nested object
+      const hasProfile = profile?.profile;
       if (error && error.includes('belum dibuat')) {
         navigate('/company/profile/setup', { replace: true });
-      }
-      if (profile && !profile?.data?.profile) {
+      } else if (!hasProfile && !error) {
         navigate('/company/profile/setup', { replace: true });
       }
     }
@@ -23,7 +25,7 @@ export default function CompanyDashboard() {
   if (loading || profileLoading) return <LoadingState />;
   if (error && !error.includes('belum dibuat')) return <ErrorState message={error} onRetry={refetch} />;
 
-  if (error?.includes('belum dibuat') || (profile && !profile?.data?.profile)) {
+  if (error?.includes('belum dibuat') || (profile && !profile?.profile)) {
     return <LoadingState text="Mengalihkan ke pengaturan profil..." />;
   }
 

@@ -13,6 +13,8 @@ export default function StudentProfile() {
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
 
+  const isNewStudent = error && (error.includes('belum dibuat') || error.includes('belum lengkap'));
+
   useEffect(() => {
     if (profile) {
       setForm({
@@ -29,6 +31,13 @@ export default function StudentProfile() {
       });
     }
   }, [profile]);
+
+  // Auto-enter edit mode for new students
+  useEffect(() => {
+    if (isNewStudent && !editing) {
+      setEditing(true);
+    }
+  }, [isNewStudent, editing]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -66,7 +75,9 @@ export default function StudentProfile() {
   };
 
   if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} />;
+
+  // Show error only if it's not a profile-not-found error
+  if (error && !isNewStudent) return <ErrorState message={error} />;
 
   const completeness = profile?.profile_completeness ?? 0;
   const missingFields = profile?.missing_fields ?? [];
@@ -80,15 +91,19 @@ export default function StudentProfile() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Profil Siswa</h1>
-          <p className="text-sm text-slate-500">Lengkapi profil Anda untuk meningkatkan peluang diterima.</p>
+          <p className="text-sm text-slate-500">
+            {isNewStudent
+              ? 'Lengkapi profil Anda untuk mulai melamar PKL.'
+              : 'Lengkapi profil Anda untuk meningkatkan peluang diterima.'}
+          </p>
         </div>
-        {!editing && (
+        {!editing && profile && (
           <Button onClick={() => setEditing(true)}>Edit Profil</Button>
         )}
       </div>
 
-      {/* Completeness Indicator */}
-      {completeness < 100 && (
+      {/* Completeness Indicator (only if profile exists) */}
+      {profile && completeness < 100 && (
         <Card>
           <Card.Body>
             <div className="flex items-center gap-4">
@@ -232,7 +247,7 @@ export default function StudentProfile() {
 
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => { setEditing(false); setMsg(''); setErrors({}); }}>
-                  Batal
+                  {isNewStudent ? 'Nanti Saja' : 'Batal'}
                 </Button>
                 <Button type="submit" disabled={saving}>
                   {saving ? 'Menyimpan...' : 'Simpan Profil'}

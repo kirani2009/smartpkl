@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFetch, useMutation } from '../../hooks/useApi';
-import { Card, Input, Button, LoadingState } from '../../components/ui';
+import { Card, Input, Button, LoadingState, ErrorState } from '../../components/ui';
 
 export default function CompanyProfileSetup() {
   const navigate = useNavigate();
-  const { data: profile, loading: profileLoading } = useFetch('/me/company');
+  const { data: profileData, loading: profileLoading, error: profileError, refetch } = useFetch('/me/company');
   const { mutate } = useMutation();
 
   const [form, setForm] = useState({
@@ -23,6 +23,30 @@ export default function CompanyProfileSetup() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
+  const [initialized, setInitialized] = useState(false);
+
+  // Populate form from existing profile data
+  useEffect(() => {
+    if (profileData && !initialized) {
+      // profileData is the CompanyResource which contains a 'profile' nested object
+      const profile = profileData.profile;
+      if (profile) {
+        setForm({
+          name: profile.name || '',
+          industry: profile.industry || '',
+          address: profile.address || '',
+          city: profile.city || '',
+          phone: profile.phone || '',
+          email: profile.email || '',
+          website: profile.website || '',
+          description: profile.description || '',
+          established_year: profile.established_year || '',
+          employee_count: profile.employee_count || '',
+        });
+      }
+      setInitialized(true);
+    }
+  }, [profileData, initialized]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,12 +63,15 @@ export default function CompanyProfileSetup() {
       const payload = { ...form };
       // Convert empty strings to null for optional fields
       Object.keys(payload).forEach((key) => {
-        if (payload[key] === '') payload[key] = null;
+        if (payload[key] === '' || payload[key] === null) payload[key] = null;
       });
 
-      const res = await mutate('post', '/me/company', payload);
+      // Use PUT if profile exists, POST if not
+      const method = profileData?.profile ? 'put' : 'post';
+      const res = await mutate(method, '/me/company', payload);
       if (res?.success) {
-        navigate('/company/dashboard');
+        setMsg('Profil perusahaan berhasil disimpan.');
+        refetch();
       }
     } catch (err) {
       const validationErrors = err?.response?.data?.errors;
@@ -64,27 +91,26 @@ export default function CompanyProfileSetup() {
   };
 
   if (profileLoading) return <LoadingState />;
+  if (profileError && !initialized) return <ErrorState message={profileError} onRetry={refetch} />;
 
-  // If profile already exists, redirect to dashboard
-  if (profile?.profile) {
-    navigate('/company/dashboard');
-    return null;
-  }
+  const hasProfile = !!profileData?.profile;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Welcome Banner */}
-      <Card>
-        <Card.Body className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100">
-            <span className="text-3xl">🏢</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900">Selamat Datang di SmartPKL!</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Silakan lengkapi profil perusahaan Anda untuk mulai menerima lamaran dari siswa PKL.
-          </p>
-        </Card.Body>
-      </Card>
+      {/* Welcome Banner (only for first-time setup) */}
+      {!hasProfile && (
+        <Card>
+          <Card.Body className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100">
+              <span className="text-3xl">🏢</span>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">Selamat Datang di SmartPKL!</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Silakan lengkapi profil perusahaan Anda untuk mulai menerima lamaran dari siswa PKL.
+            </p>
+          </Card.Body>
+        </Card>
+      )}
 
       {/* Profile Form */}
       <Card>
@@ -196,7 +222,7 @@ export default function CompanyProfileSetup() {
 
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="secondary" onClick={() => navigate('/company/dashboard')}>
-                Nanti Saja
+                {hasProfile ? 'Kembali' : 'Nanti Saja'}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? 'Menyimpan...' : 'Simpan Profil'}

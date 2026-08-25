@@ -31,6 +31,7 @@ class InternshipListing extends Model
         'location',
         'allowance',
         'facilities',
+        'required_skills',
         'status',
     ];
 

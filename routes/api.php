@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/teacher/partnerships', [TeacherPartnershipController::class, 'store']);
         Route::get('/teacher/partnerships', [TeacherPartnershipController::class, 'index']);
         Route::get('/teacher/partnerships/{partnership}', [TeacherPartnershipController::class, 'show']);
+        Route::put('/teacher/partnerships/{partnership}', [TeacherPartnershipController::class, 'update']);
     });
 
     // Pengelolaan sekolah: khusus admin (ROLES.json: admin manage schools).
@@ -132,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/company/dashboard', [CompanyDashboardController::class, 'show']);
 
         // Pengelolaan partnership dari sisi perusahaan.
+        Route::post('/company/partnerships', [CompanyPartnershipController::class, 'store']);
         Route::get('/company/partnerships', [CompanyPartnershipController::class, 'index']);
         Route::get('/company/partnerships/{partnership}', [CompanyPartnershipController::class, 'show']);
         Route::put('/company/partnerships/{partnership}/accept', [CompanyPartnershipController::class, 'accept']);

@@ -175,4 +175,41 @@ class TeacherPartnershipController extends Controller
             201
         );
     }
+
+    /**
+     * PUT /api/teacher/partnerships/{partnership} — update status partnership (accept/reject).
+     */
+    public function update(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
+    {
+        $teacher = $request->user()->teacher;
+
+        if (! $teacher) {
+            return $this->error('Profil guru belum dibuat.', null, 404);
+        }
+
+        // Hanya partnership dari sekolah guru yang boleh diupdate.
+        if ($partnership->school_id !== $teacher->school_id) {
+            return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
+        }
+
+        $request->validate([
+            'status' => ['required', 'in:ACCEPTED,REJECTED'],
+        ]);
+
+        if ($partnership->status !== SchoolCompanyPartnership::STATUS_PENDING) {
+            return $this->error('Hanya partnership dengan status PENDING yang dapat diproses.', null, 422);
+        }
+
+        $partnership->update([
+            'status' => $request->input('status'),
+            'responded_at' => now(),
+        ]);
+
+        $statusText = $request->input('status') === 'ACCEPTED' ? 'diterima' : 'ditolak';
+
+        return $this->success(
+            new PartnershipResource($partnership->fresh(['company.profile', 'requester'])),
+            "Partnership berhasil {$statusText}."
+        );
+    }
 }

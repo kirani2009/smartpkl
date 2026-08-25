@@ -107,7 +107,7 @@ class CompanyInternshipController extends Controller
             unset($validated['requirements'], $validated['skill_ids']);
 
             $validated['company_id'] = $company->id;
-            $validated['status'] = InternshipListing::STATUS_DRAFT;
+            $validated['status'] = InternshipListing::STATUS_PUBLISHED;
 
             $internship = InternshipListing::create($validated);
 
