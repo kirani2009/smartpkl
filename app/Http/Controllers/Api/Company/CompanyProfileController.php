@@ -57,7 +57,9 @@ class CompanyProfileController extends Controller
             ]);
         }
 
-        $company->profile()->create($request->validated());
+        $validated = $request->validated();
+
+        $company->profile()->create($validated);
         $company->load('profile');
 
         return $this->success(new CompanyResource($company), 'Profil perusahaan berhasil dibuat.', 201);
@@ -76,10 +78,12 @@ class CompanyProfileController extends Controller
             return $this->error('Profil perusahaan belum ada. Gunakan POST untuk membuat profil.', null, 404);
         }
 
+        $validated = $request->validated();
+
         if ($company->profile) {
-            $company->profile->update($request->validated());
+            $company->profile->update($validated);
         } else {
-            $company->profile()->create($request->validated());
+            $company->profile()->create($validated);
         }
 
         $company->load('profile');

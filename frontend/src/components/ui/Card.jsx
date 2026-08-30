@@ -1,7 +1,7 @@
-export default function Card({ className = '', children, ...props }) {
+export default function Card({ className = '', hover = false, children, ...props }) {
   return (
     <div
-      className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}
+      className={`rounded-xl border border-slate-200/80 bg-white shadow-card ${hover ? 'card-interactive cursor-pointer' : ''} ${className}`}
       {...props}
     >
       {children}
@@ -9,21 +9,22 @@ export default function Card({ className = '', children, ...props }) {
   );
 }
 
-Card.Header = function CardHeader({ className = '', children }) {
+Card.Header = function CardHeader({ className = '', action, children }) {
   return (
-    <div className={`border-b border-slate-200 px-6 py-4 ${className}`}>
-      {children}
+    <div className={`flex items-center justify-between border-b border-slate-100 px-6 py-4 ${className}`}>
+      <div className="flex-1">{children}</div>
+      {action && <div className="ml-4 flex-shrink-0">{action}</div>}
     </div>
   );
 };
 
 Card.Body = function CardBody({ className = '', children }) {
-  return <div className={`px-6 py-4 ${className}`}>{children}</div>;
+  return <div className={`px-6 py-5 ${className}`}>{children}</div>;
 };
 
 Card.Footer = function CardFooter({ className = '', children }) {
   return (
-    <div className={`border-t border-slate-200 px-6 py-4 ${className}`}>
+    <div className={`border-t border-slate-100 px-6 py-4 ${className}`}>
       {children}
     </div>
   );

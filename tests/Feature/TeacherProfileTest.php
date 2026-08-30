@@ -29,6 +29,8 @@ class TeacherProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/teacher', [
+                'teacher_name' => 'Pak Budi',
+                'school_name' => 'SMK N 1 Bandung',
                 'school_id' => $school->id,
                 'nip' => '198001012010011001',
                 'position' => 'Guru Pembimbing PKL',
@@ -75,7 +77,11 @@ class TeacherProfileTest extends TestCase
         $user->teacher()->create(['school_id' => $school->id]);
 
         $this->withToken($token)
-            ->postJson('/api/me/teacher', ['school_id' => $school->id])
+            ->postJson('/api/me/teacher', [
+                'teacher_name' => 'Guru Duplikat',
+                'school_name' => 'SMK N 1',
+                'school_id' => $school->id,
+            ])
             ->assertStatus(409)
             ->assertJsonPath('success', false);
     }

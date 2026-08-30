@@ -11,13 +11,13 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = Hash::make('password123');
+        // Password plaintext; model cast 'hashed' akan meng-hash otomatis.
+        $password = 'password123';
 
         // ---- ADMIN ----
         User::updateOrCreate(
@@ -124,6 +124,7 @@ class UserSeeder extends Seeder
         }
 
         // ---- PERUSAHAAN (3 perusahaan) ----
+        // Mapping perusahaan ke sekolah (satu perusahaan = satu sekolah)
         $companyData = [
             [
                 'email' => 'hrd@techcorp.id',
@@ -136,6 +137,7 @@ class UserSeeder extends Seeder
                 'description' => 'Perusahaan teknologi terkemuka yang fokus pada pengembangan solusi digital enterprise.',
                 'established_year' => 2015,
                 'employee_count' => 250,
+                'school_npsn' => '20109876', // SMKN 1 Jakarta
             ],
             [
                 'email' => 'info@digitalstudio.id',
@@ -148,6 +150,7 @@ class UserSeeder extends Seeder
                 'description' => 'Studio kreatif digital yang melayani desain UI/UX, branding, dan pengembangan aplikasi mobile.',
                 'established_year' => 2018,
                 'employee_count' => 45,
+                'school_npsn' => '20205432', // SMKN 2 Bandung
             ],
             [
                 'email' => 'recruit@multinet.id',
@@ -160,6 +163,7 @@ class UserSeeder extends Seeder
                 'description' => 'Perusahaan jasa IT yang menyediakan layanan managed services, cloud, dan cybersecurity.',
                 'established_year' => 2012,
                 'employee_count' => 120,
+                'school_npsn' => '20309999', // SMKN 3 Surabaya
             ],
         ];
 
@@ -173,9 +177,15 @@ class UserSeeder extends Seeder
                 ],
             );
 
+            // Cari school_id berdasarkan NPSN
+            $school = School::where('npsn', $cData['school_npsn'])->first();
+
             $company = Company::updateOrCreate(
                 ['user_id' => $user->id],
-                ['status' => 'active'],
+                [
+                    'status' => 'active',
+                    'school_id' => $school?->id,
+                ],
             );
 
             CompanyProfile::updateOrCreate(

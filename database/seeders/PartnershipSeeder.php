@@ -64,7 +64,7 @@ class PartnershipSeeder extends Seeder
                     'requested_by' => $teacher?->user_id,
                     'notes' => $p['status'] === SchoolCompanyPartnership::STATUS_ACCEPTED
                         ? 'Partnership sudah disetujui.'
-                        : 'Menunggu persetujuan perusahaan.',
+                        : 'Menunggu persetujuan guru.',
                     'responded_at' => $p['status'] === SchoolCompanyPartnership::STATUS_ACCEPTED ? now() : null,
                 ],
             );

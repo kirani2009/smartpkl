@@ -23,6 +23,7 @@ class SchoolCompanyPartnership extends Model
         'status',
         'responded_at',
         'notes',
+        'response_notes',
     ];
 
     protected $casts = [

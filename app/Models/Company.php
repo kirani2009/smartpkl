@@ -19,6 +19,7 @@ class Company extends Model
 
     protected $fillable = [
         'user_id',
+        'school_id',
         'status',
         'verified_at',
     ];
@@ -30,6 +31,11 @@ class Company extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
     }
 
     public function profile(): HasOne

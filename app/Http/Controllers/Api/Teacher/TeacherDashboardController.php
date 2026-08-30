@@ -10,11 +10,6 @@ use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * PHASE 4 — School & Teacher.
- * Dashboard guru: ringkasan data sekolah tempat guru mengajar.
- * Hanya guru (ROLES.json: teacher memantau siswa & partnership sekolahnya).
- */
 class TeacherDashboardController extends Controller
 {
     use ApiResponseTrait;
@@ -27,23 +22,39 @@ class TeacherDashboardController extends Controller
             return $this->error('Profil guru belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
         }
 
-        // Jika profil skeleton (belum lengkap), kembalikan data kosong
-        // agar frontend bisa redirect ke halaman setup profil.
-        if (! $teacher->school_id) {
+        $schoolId = $teacher->school_id;
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+
+        // If no school info at all, return empty dashboard
+        if (! $schoolId && ! $schoolName) {
             return $this->success([
-                'school' => null,
+                'school' => ['id' => null, 'name' => $teacher->teacher_name ? "Sekolah {$teacher->teacher_name}" : null],
                 'students' => ['total' => 0, 'placed' => 0, 'without_internship' => 0],
                 'partnerships' => ['total' => 0, 'active' => 0, 'pending' => 0],
                 'recent_applications' => [],
             ], 'Profil guru belum lengkap.');
         }
 
-        $schoolId = $teacher->school_id;
-
-        $totalStudents = Student::where('school_id', $schoolId)->count();
+        $totalStudents = Student::where(function ($q) use ($schoolId, $schoolName) {
+            if ($schoolId) {
+                $q->where('school_id', $schoolId);
+            }
+            if ($schoolName) {
+                $q->orWhere('school_name', $schoolName);
+            }
+        })->count();
 
         $acceptedStudentIds = Application::where('status', Application::STATUS_ACCEPTED)
-            ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereHas('student', function ($q) use ($schoolId, $schoolName) {
+                $q->where(function ($sq) use ($schoolId, $schoolName) {
+                    if ($schoolId) {
+                        $sq->where('school_id', $schoolId);
+                    }
+                    if ($schoolName) {
+                        $sq->orWhere('school_name', $schoolName);
+                    }
+                });
+            })
             ->distinct()
             ->pluck('student_id');
 
@@ -52,7 +63,16 @@ class TeacherDashboardController extends Controller
 
         $recentApplications = Application::query()
             ->with(['student.user:id,name', 'internship:id,title'])
-            ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereHas('student', function ($q) use ($schoolId, $schoolName) {
+                $q->where(function ($sq) use ($schoolId, $schoolName) {
+                    if ($schoolId) {
+                        $sq->where('school_id', $schoolId);
+                    }
+                    if ($schoolName) {
+                        $sq->orWhere('school_name', $schoolName);
+                    }
+                });
+            })
             ->latest('applied_at')
             ->limit(5)
             ->get()
@@ -66,8 +86,8 @@ class TeacherDashboardController extends Controller
 
         return $this->success([
             'school' => [
-                'id' => $teacher->school->id,
-                'name' => $teacher->school->name,
+                'id' => $schoolId,
+                'name' => $schoolName,
             ],
             'students' => [
                 'total' => $totalStudents,
@@ -75,12 +95,43 @@ class TeacherDashboardController extends Controller
                 'without_internship' => $studentsWithoutInternship,
             ],
             'partnerships' => [
-                'total' => SchoolCompanyPartnership::where('school_id', $schoolId)->count(),
-                'active' => SchoolCompanyPartnership::where('school_id', $schoolId)
-                    ->where('status', SchoolCompanyPartnership::STATUS_ACCEPTED)
+                'total' => SchoolCompanyPartnership::query()
+                    ->where(function ($q) use ($schoolId, $schoolName) {
+                        if ($schoolId) {
+                            $q->where('school_id', $schoolId);
+                        }
+                        if ($schoolName) {
+                            $q->orWhereHas('school', function ($sq) use ($schoolName) {
+                                $sq->where('name', $schoolName);
+                            });
+                        }
+                    })
                     ->count(),
-                'pending' => SchoolCompanyPartnership::where('school_id', $schoolId)
+                'active' => SchoolCompanyPartnership::query()
+                    ->where('status', SchoolCompanyPartnership::STATUS_ACCEPTED)
+                    ->where(function ($q) use ($schoolId, $schoolName) {
+                        if ($schoolId) {
+                            $q->where('school_id', $schoolId);
+                        }
+                        if ($schoolName) {
+                            $q->orWhereHas('school', function ($sq) use ($schoolName) {
+                                $sq->where('name', $schoolName);
+                            });
+                        }
+                    })
+                    ->count(),
+                'pending' => SchoolCompanyPartnership::query()
                     ->where('status', SchoolCompanyPartnership::STATUS_PENDING)
+                    ->where(function ($q) use ($schoolId, $schoolName) {
+                        if ($schoolId) {
+                            $q->where('school_id', $schoolId);
+                        }
+                        if ($schoolName) {
+                            $q->orWhereHas('school', function ($sq) use ($schoolName) {
+                                $sq->where('name', $schoolName);
+                            });
+                        }
+                    })
                     ->count(),
             ],
             'recent_applications' => $recentApplications,

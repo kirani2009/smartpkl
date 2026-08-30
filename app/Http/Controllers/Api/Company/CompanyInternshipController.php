@@ -7,8 +7,6 @@ use App\Http\Requests\Internship\StoreInternshipRequest;
 use App\Http\Requests\Internship\UpdateInternshipRequest;
 use App\Http\Resources\InternshipResource;
 use App\Models\InternshipListing;
-use App\Models\InternshipRequirement;
-use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
 use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
@@ -35,7 +33,7 @@ class CompanyInternshipController extends Controller
         }
 
         $internships = InternshipListing::query()
-            ->with(['school:id,name', 'major:id,name', 'requirements', 'skills'])
+            ->with(['major:id,name', 'requirements'])
             ->where('company_id', $company->id)
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -69,7 +67,7 @@ class CompanyInternshipController extends Controller
             return $this->error('Anda tidak memiliki akses ke lowongan ini.', null, 403);
         }
 
-        $internship->load(['school', 'major', 'requirements', 'skills']);
+        $internship->load(['major', 'requirements']);
         $internship->loadCount('applications');
 
         return $this->success(new InternshipResource($internship), 'Detail lowongan berhasil diambil.');
@@ -77,56 +75,47 @@ class CompanyInternshipController extends Controller
 
     /**
      * POST /api/company/internships — buat lowongan baru.
+     * Lowongan langsung berstatus PUBLISHED.
      */
     public function store(StoreInternshipRequest $request): JsonResponse
     {
         $company = $this->resolveCompany($request);
 
         if (! $company) {
-            return $this->error('Profil perusahaan belum dibuat.', null, 404);
+            return $this->error('Profil perusahaan belum dibuat. Silakan lengkapi profil terlebih dahulu.', null, 404);
         }
 
-        // Jika school_id ditentukan, pastikan ada partnership ACTIVE.
-        $schoolId = $request->validated('school_id');
-        if ($schoolId) {
-            $hasPartnership = SchoolCompanyPartnership::where('school_id', $schoolId)
-                ->where('company_id', $company->id)
-                ->where('status', SchoolCompanyPartnership::STATUS_ACCEPTED)
-                ->exists();
+        try {
+            $internship = DB::transaction(function () use ($request, $company) {
+                $validated = $request->validated();
+                $requirements = $validated['requirements'] ?? [];
 
-            if (! $hasPartnership) {
-                return $this->error('Tidak ada partnership aktif dengan sekolah ini. Hanya lowongan umum yang bisa dibuat.', null, 422);
-            }
+                unset($validated['requirements']);
+
+                $validated['company_id'] = $company->id;
+                $validated['status'] = InternshipListing::STATUS_PUBLISHED;
+
+                // Auto-set title from company profile name if not provided
+                if (empty($validated['title'])) {
+                    $validated['title'] = $company->profile?->name ?? 'Lowongan PKL';
+                }
+
+                $internship = InternshipListing::create($validated);
+
+                // Simpan requirements
+                foreach ($requirements as $description) {
+                    $internship->requirements()->create(['description' => $description]);
+                }
+
+                return $internship;
+            });
+
+            $internship->load(['major', 'requirements']);
+
+            return $this->success(new InternshipResource($internship), 'Lowongan berhasil dibuat dan langsung dipublikasikan.', 201);
+        } catch (\Exception $e) {
+            return $this->error('Gagal menyimpan lowongan: ' . $e->getMessage(), null, 500);
         }
-
-        $internship = DB::transaction(function () use ($request, $company) {
-            $validated = $request->validated();
-            $requirements = $validated['requirements'] ?? [];
-            $skillIds = $validated['skill_ids'] ?? [];
-
-            unset($validated['requirements'], $validated['skill_ids']);
-
-            $validated['company_id'] = $company->id;
-            $validated['status'] = InternshipListing::STATUS_PUBLISHED;
-
-            $internship = InternshipListing::create($validated);
-
-            // Simpan requirements
-            foreach ($requirements as $description) {
-                $internship->requirements()->create(['description' => $description]);
-            }
-
-            // Simpan skills
-            if ($skillIds) {
-                $internship->skills()->sync($skillIds);
-            }
-
-            return $internship;
-        });
-
-        $internship->load(['school', 'major', 'requirements', 'skills']);
-
-        return $this->success(new InternshipResource($internship), 'Lowongan berhasil dibuat.', 201);
     }
 
     /**
@@ -140,25 +129,11 @@ class CompanyInternshipController extends Controller
             return $this->error('Anda tidak memiliki akses ke lowongan ini.', null, 403);
         }
 
-        // Jika school_id berubah, pastikan ada partnership ACTIVE.
-        $schoolId = $request->validated('school_id') ?? $internship->school_id;
-        if ($schoolId) {
-            $hasPartnership = SchoolCompanyPartnership::where('school_id', $schoolId)
-                ->where('company_id', $company->id)
-                ->where('status', SchoolCompanyPartnership::STATUS_ACCEPTED)
-                ->exists();
-
-            if (! $hasPartnership) {
-                return $this->error('Tidak ada partnership aktif dengan sekolah ini.', null, 422);
-            }
-        }
-
         DB::transaction(function () use ($request, $internship) {
             $validated = $request->validated();
             $requirements = $validated['requirements'] ?? null;
-            $skillIds = $validated['skill_ids'] ?? null;
 
-            unset($validated['requirements'], $validated['skill_ids']);
+            unset($validated['requirements']);
 
             $internship->update($validated);
 
@@ -169,14 +144,9 @@ class CompanyInternshipController extends Controller
                     $internship->requirements()->create(['description' => $description]);
                 }
             }
-
-            // Update skills jika dikirim
-            if ($skillIds !== null) {
-                $internship->skills()->sync($skillIds);
-            }
         });
 
-        $internship->load(['school', 'major', 'requirements', 'skills']);
+        $internship->load(['major', 'requirements']);
 
         return $this->success(new InternshipResource($internship->fresh()), 'Lowongan berhasil diperbarui.');
     }
@@ -200,7 +170,6 @@ class CompanyInternshipController extends Controller
 
         DB::transaction(function () use ($internship) {
             $internship->requirements()->delete();
-            $internship->skills()->detach();
             $internship->delete();
         });
 

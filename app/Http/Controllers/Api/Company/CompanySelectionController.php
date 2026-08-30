@@ -7,6 +7,7 @@ use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use App\Models\ApplicationStatusHistory;
 use App\Models\InternshipListing;
+use App\Services\NotificationService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
@@ -152,6 +153,11 @@ class CompanySelectionController extends Controller
                     'note' => $note,
                 ]);
             });
+
+            // Kirim notifikasi ke siswa untuk status ACCEPTED / REJECTED
+            if (in_array($newStatus, ['ACCEPTED', 'REJECTED'], true)) {
+                NotificationService::applicationStatusChanged($application->fresh(['student', 'internship']), $note);
+            }
 
             $updated++;
         }

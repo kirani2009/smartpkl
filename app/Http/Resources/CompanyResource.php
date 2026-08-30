@@ -20,6 +20,7 @@ class CompanyResource extends JsonResource
             'verified_at' => $this->verified_at?->toISOString(),
             'profile' => new CompanyProfileResource($this->whenLoaded('profile')),
             'user' => new UserResource($this->whenLoaded('user')),
+            'school' => new SchoolResource($this->whenLoaded('school')),
             'partnerships_count' => $this->whenCounted('partnerships'),
             'internship_listings_count' => $this->whenCounted('internshipListings'),
             'created_at' => $this->created_at?->toISOString(),

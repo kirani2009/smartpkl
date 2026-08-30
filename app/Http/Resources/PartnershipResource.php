@@ -21,6 +21,7 @@ class PartnershipResource extends JsonResource
             'status' => $this->status,
             'responded_at' => $this->responded_at?->toISOString(),
             'notes' => $this->notes,
+            'response_notes' => $this->response_notes,
             'school' => new SchoolResource($this->whenLoaded('school')),
             'company' => new CompanyResource($this->whenLoaded('company')),
             'requester' => new UserResource($this->whenLoaded('requester')),

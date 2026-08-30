@@ -1,30 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Brand Colors */
     --color-primary: #16A34A;
     --color-primary-hover: #15803D;
     --color-primary-dark: #166534;
     --color-primary-light: #DCFCE7;
     --color-primary-soft: #F0FDF4;
-
-    /* Background */
     --color-background: #F8FAFC;
     --color-surface: #FFFFFF;
-
-    /* Text */
     --color-text: #0F172A;
     --color-text-muted: #475569;
-
-    /* Border */
     --color-border: #E2E8F0;
-
-    /* Status */
     --color-success: #16A34A;
     --color-warning: #CA8A04;
     --color-danger: #DC2626;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--color-text);
+    background: var(--color-background);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+@layer components {
+  /* Premium input focus ring */
+  .input-focus {
+    @apply transition-all duration-200;
+  }
+  .input-focus:focus {
+    @apply border-brand-500 ring-2 ring-brand-500/10;
+  }
+
+  /* Card hover effect */
+  .card-interactive {
+    @apply transition-all duration-200;
+  }
+  .card-interactive:hover {
+    @apply shadow-card-hover -translate-y-0.5;
+  }
+
+  /* Sidebar active indicator */
+  .nav-active {
+    @apply bg-violet-50 text-violet-700 font-semibold;
+    box-shadow: inset 3px 0 0 0 #7c3aed;
+  }
+
+  /* Smooth page transitions */
+  .page-enter {
+    @apply animate-fade-in;
   }
 }

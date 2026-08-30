@@ -31,7 +31,10 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
+                'school_name' => 'SMK N 1',
                 'school_id' => $school->id,
+                'major_name' => 'Teknik Komputer',
                 'nis' => '12345',
                 'class' => 'XII RPL',
                 'entry_year' => 2024,
@@ -43,11 +46,13 @@ class StudentProfileTest extends TestCase
             ])
             ->assertStatus(201)
             ->assertJsonPath('success', true)
+            ->assertJsonPath('data.name', 'Budi Santoso')
             ->assertJsonPath('data.school.name', 'SMK N 1')
             ->assertJsonPath('data.nis', '12345')
             ->assertJsonPath('data.gender', 'male');
 
-        $this->assertDatabaseHas('students', ['nis' => '12345']);
+        $this->assertDatabaseHas('students', ['nis' => '12345', 'name' => 'Budi Santoso']);
+        $this->assertDatabaseHas('users', ['name' => 'Budi Santoso']);
     }
 
     public function test_student_can_view_own_profile(): void
@@ -57,6 +62,7 @@ class StudentProfileTest extends TestCase
         $token = $user->createToken('auth-token')->plainTextToken;
 
         $user->student()->create([
+            'name' => 'Budi Santoso',
             'school_id' => $school->id,
             'nis' => '12345',
             'class' => 'XII RPL',
@@ -65,6 +71,7 @@ class StudentProfileTest extends TestCase
         $this->withToken($token)
             ->getJson('/api/me/student')
             ->assertStatus(200)
+            ->assertJsonPath('data.name', 'Budi Santoso')
             ->assertJsonPath('data.school.name', 'SMK N 1')
             ->assertJsonPath('data.nis', '12345');
     }
@@ -76,16 +83,19 @@ class StudentProfileTest extends TestCase
         $token = $user->createToken('auth-token')->plainTextToken;
 
         $user->student()->create([
+            'name' => 'Budi Santoso',
             'school_id' => $school->id,
             'nis' => '12345',
         ]);
 
         $this->withToken($token)
             ->putJson('/api/me/student', [
+                'name' => 'Budi Santoso Updated',
                 'nis' => '99999',
                 'class' => 'XII TKJ',
             ])
             ->assertStatus(200)
+            ->assertJsonPath('data.name', 'Budi Santoso Updated')
             ->assertJsonPath('data.nis', '99999')
             ->assertJsonPath('data.class', 'XII TKJ');
     }
@@ -99,7 +109,7 @@ class StudentProfileTest extends TestCase
         $user->student()->create(['school_id' => $school->id]);
 
         $this->withToken($token)
-            ->postJson('/api/me/student', ['school_id' => $school->id])
+            ->postJson('/api/me/student', ['name' => 'Budi', 'school_name' => 'SMK N 1', 'school_id' => $school->id, 'major_name' => 'RPL'])
             ->assertStatus(409)
             ->assertJsonPath('success', false);
     }
@@ -111,7 +121,7 @@ class StudentProfileTest extends TestCase
         $this->withToken($token)
             ->postJson('/api/me/student', [])
             ->assertStatus(422)
-            ->assertJsonValidationErrors('school_id');
+            ->assertJsonValidationErrors(['name', 'school_name', 'major_name']);
     }
 
     public function test_update_without_profile_returns_404(): void
@@ -130,6 +140,7 @@ class StudentProfileTest extends TestCase
         $token = $user->createToken('auth-token')->plainTextToken;
 
         $user->student()->create([
+            'name' => 'Budi Santoso',
             'school_id' => $school->id,
             'nis' => '12345',
             'class' => 'XII RPL',
@@ -144,7 +155,7 @@ class StudentProfileTest extends TestCase
         $this->assertArrayHasKey('missing_fields', $data);
         $this->assertIsInt($data['profile_completeness']);
         $this->assertIsArray($data['missing_fields']);
-        $this->assertGreaterThan(0, $data['profile_completeness']);
+        $this->assertTrue(!in_array('Nama Siswa', $data['missing_fields']));
     }
 
     // ---- Security Tests ----
@@ -179,7 +190,10 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
+                'school_name' => 'SMK N 1',
                 'school_id' => $school->id,
+                'major_name' => 'RPL',
                 'user_id' => $otherUser->id, // attempt to override
                 'nis' => '12345',
             ])
@@ -204,7 +218,10 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
+                'school_name' => 'SMK N 1',
                 'school_id' => $school->id,
+                'major_name' => 'RPL',
                 'role' => 'admin', // attempt to escalate
                 'nis' => '12345',
             ])
@@ -222,6 +239,7 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
                 'school_id' => $school->id,
                 'gender' => 'invalid_gender',
             ])
@@ -235,6 +253,7 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
                 'school_id' => 99999,
             ])
             ->assertStatus(422)
@@ -248,6 +267,7 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
                 'school_id' => $school->id,
                 'birth_date' => '2030-01-01', // future date
             ])
@@ -262,6 +282,7 @@ class StudentProfileTest extends TestCase
 
         $this->withToken($token)
             ->postJson('/api/me/student', [
+                'name' => 'Budi Santoso',
                 'school_id' => $school->id,
                 'interests' => str_repeat('a', 1001), // max 1000
             ])

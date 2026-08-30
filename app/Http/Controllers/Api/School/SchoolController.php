@@ -85,4 +85,23 @@ class SchoolController extends Controller
 
         return $this->success(null, 'Sekolah berhasil dihapus.');
     }
+
+    /**
+     * POST /api/schools/resolve — cari atau buat sekolah berdasarkan nama.
+     */
+    public function resolve(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $name = trim($request->input('name'));
+        $school = School::where('name', $name)->first();
+
+        if (! $school) {
+            $school = School::create(['name' => $name]);
+        }
+
+        return $this->success(new SchoolResource($school), 'Sekolah berhasil ditemukan/dibuat.');
+    }
 }

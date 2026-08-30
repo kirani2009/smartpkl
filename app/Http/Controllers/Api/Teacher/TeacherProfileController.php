@@ -6,22 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreTeacherProfileRequest;
 use App\Http\Requests\Teacher\UpdateTeacherProfileRequest;
 use App\Http\Resources\TeacherResource;
+use App\Models\School;
 use App\Models\Teacher;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * PHASE 4 — School & Teacher.
- * Profil guru (hanya profil milik sendiri).
- */
 class TeacherProfileController extends Controller
 {
     use ApiResponseTrait;
 
-    /**
-     * GET /api/me/teacher — profil guru yang sedang login.
-     */
     public function show(Request $request): JsonResponse
     {
         $teacher = $request->user()->teacher;
@@ -35,25 +29,28 @@ class TeacherProfileController extends Controller
         return $this->success(new TeacherResource($teacher), 'Profil guru berhasil diambil.');
     }
 
-    /**
-     * POST /api/me/teacher — buat profil guru (guru memilih sekolahnya).
-     */
     public function store(StoreTeacherProfileRequest $request): JsonResponse
     {
         $user = $request->user();
+        $validated = $request->validated();
 
-        // Jika skeleton sudah ada (dari registrasi), update.
-        // Jika profil lengkap sudah ada, tolak.
+        // Auto-match school_id from school_name if not provided
+        if (empty($validated['school_id']) && ! empty($validated['school_name'])) {
+            $school = School::where('name', $validated['school_name'])->first();
+            if ($school) {
+                $validated['school_id'] = $school->id;
+            }
+        }
+
         $teacher = $user->teacher;
         if ($teacher && $teacher->school_id) {
             return $this->error('Profil guru sudah ada. Gunakan PUT untuk memperbarui.', null, 409);
         }
 
         if ($teacher) {
-            // Update skeleton yang dibuat saat registrasi.
-            $teacher->update($request->validated());
+            $teacher->update($validated);
         } else {
-            $teacher = $user->teacher()->create($request->validated());
+            $teacher = $user->teacher()->create($validated);
         }
 
         $teacher->load('school');
@@ -61,9 +58,6 @@ class TeacherProfileController extends Controller
         return $this->success(new TeacherResource($teacher), 'Profil guru berhasil dibuat.', 201);
     }
 
-    /**
-     * PUT /api/me/teacher — perbarui profil guru.
-     */
     public function update(UpdateTeacherProfileRequest $request): JsonResponse
     {
         $teacher = $request->user()->teacher;
@@ -72,9 +66,17 @@ class TeacherProfileController extends Controller
             return $this->error('Profil guru belum ada. Gunakan POST untuk membuat profil.', null, 404);
         }
 
-        $teacher->update($request->validated());
+        $validated = $request->validated();
+
+        // Auto-match school_id from school_name if school_name changed
+        if (! empty($validated['school_name']) && empty($validated['school_id'])) {
+            $school = School::where('name', $validated['school_name'])->first();
+            $validated['school_id'] = $school?->id;
+        }
+
+        $teacher->update($validated);
         $teacher->load('school');
 
-        return $this->success(new TeacherResource($teacher), 'Profil guru berhasil diperbarui.');
+        return $this->success(new TeacherResource($teacher->fresh()), 'Profil guru berhasil diperbarui.');
     }
 }

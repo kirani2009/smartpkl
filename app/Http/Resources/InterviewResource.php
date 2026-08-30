@@ -16,6 +16,14 @@ class InterviewResource extends JsonResource
         return [
             'id' => $this->id,
             'application_id' => $this->application_id,
+            'application' => $this->whenLoaded('application', function () {
+                return [
+                    'id' => $this->application->id,
+                    'status' => $this->application->status,
+                    'message' => $this->application->message,
+                    'internship' => new InternshipResource($this->application->whenLoaded('internship')),
+                ];
+            }),
             'scheduled_at' => $this->scheduled_at?->toISOString(),
             'mode' => $this->mode,
             'location' => $this->location,

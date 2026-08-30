@@ -24,8 +24,18 @@ class MajorController extends Controller
      */
     public function index(School $school): JsonResponse
     {
+        $schoolId = $school->id;
+        $majors = \App\Models\Major::query()
+            ->where('school_id', $schoolId)
+            ->orWhereNull('school_id')
+            ->withCount(['students' => function ($q) use ($schoolId) {
+                $q->where('school_id', $schoolId);
+            }])
+            ->orderBy('name')
+            ->get();
+
         return $this->success([
-            'items' => MajorResource::collection($school->majors()->orderBy('name')->get()),
+            'items' => MajorResource::collection($majors),
         ], 'Daftar jurusan berhasil diambil.');
     }
 
@@ -55,10 +65,17 @@ class MajorController extends Controller
 
     /**
      * DELETE /api/majors/{major} — hapus jurusan.
+     * Sebelum menghapus, lepaskan siswa dari jurusan ini (set major_id = NULL)
+     * agar tidak melanggar foreign key constraint.
      */
     public function destroy(Major $major): JsonResponse
     {
         $this->authorize('delete', $major);
+
+        // Lepaskan semua siswa dari jurusan ini (set major_id = NULL)
+        // Data siswa tetap tersimpan, hanya relasi jurusan yang dilepas.
+        \App\Models\Student::where('major_id', $major->id)
+            ->update(['major_id' => null]);
 
         $major->delete();
 

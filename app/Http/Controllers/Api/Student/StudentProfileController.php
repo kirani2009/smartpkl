@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\StoreStudentProfileRequest;
 use App\Http\Requests\Student\UpdateStudentProfileRequest;
 use App\Http\Resources\StudentResource;
+use App\Models\Major;
+use App\Models\School;
 use App\Models\Student;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -42,6 +44,24 @@ class StudentProfileController extends Controller
     {
         $user = $request->user();
 
+        $validated = $request->validated();
+
+        // Auto-match school_id from school_name if not provided
+        if (empty($validated['school_id']) && ! empty($validated['school_name'])) {
+            $school = School::where('name', $validated['school_name'])->first();
+            if ($school) {
+                $validated['school_id'] = $school->id;
+            }
+        }
+
+        // Auto-match major_id from major_name if not provided
+        if (empty($validated['major_id']) && ! empty($validated['major_name'])) {
+            $major = Major::where('name', $validated['major_name'])->first();
+            if ($major) {
+                $validated['major_id'] = $major->id;
+            }
+        }
+
         // Jika skeleton sudah ada (dari registrasi), update.
         // Jika profil lengkap sudah ada, tolak.
         $student = $user->student;
@@ -51,9 +71,14 @@ class StudentProfileController extends Controller
 
         if ($student) {
             // Update skeleton yang dibuat saat registrasi.
-            $student->update($request->validated());
+            $student->update($validated);
         } else {
-            $student = $user->student()->create($request->validated());
+            $student = $user->student()->create($validated);
+        }
+
+        // Sync name to users table for backward compatibility
+        if (! empty($validated['name'])) {
+            $user->update(['name' => $validated['name']]);
         }
 
         $student->load(['school', 'major']);
@@ -72,7 +97,27 @@ class StudentProfileController extends Controller
             return $this->error('Profil siswa belum ada. Gunakan POST untuk membuat profil.', null, 404);
         }
 
-        $student->update($request->validated());
+        $validated = $request->validated();
+
+        // Auto-match school_id from school_name if school_name changed
+        if (! empty($validated['school_name']) && empty($validated['school_id'])) {
+            $school = School::where('name', $validated['school_name'])->first();
+            $validated['school_id'] = $school?->id;
+        }
+
+        // Auto-match major_id from major_name if major_name changed
+        if (! empty($validated['major_name']) && empty($validated['major_id'])) {
+            $major = Major::where('name', $validated['major_name'])->first();
+            $validated['major_id'] = $major?->id;
+        }
+
+        $student->update($validated);
+
+        // Sync name to users table for backward compatibility
+        if (! empty($validated['name'])) {
+            $student->user->update(['name' => $validated['name']]);
+        }
+
         $student->load(['school', 'major']);
 
         return $this->success(new StudentResource($student->fresh()), 'Profil siswa berhasil diperbarui.');

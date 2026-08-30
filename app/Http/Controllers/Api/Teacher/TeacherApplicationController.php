@@ -37,7 +37,13 @@ class TeacherApplicationController extends Controller
                 'internship.company:id',
                 'internship.company.profile:name',
             ])
-            ->whereHas('student', fn ($q) => $q->where('school_id', $teacher->school_id))
+            ->whereHas('student', function ($q) use ($teacher) {
+                $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+                $q->where(function ($sq) use ($teacher, $schoolName) {
+                    $sq->where('school_id', $teacher->school_id)
+                       ->orWhere('school_name', $schoolName);
+                });
+            })
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->when($request->filled('student_id'), fn ($q) => $q->where('student_id', $request->input('student_id')))
             ->latest('applied_at')
@@ -66,7 +72,11 @@ class TeacherApplicationController extends Controller
         }
 
         // Pastikan lamaran dari siswa sekolah guru
-        if ($application->student->school_id !== $teacher->school_id) {
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+        $hasAccess = $application->student->school_id === $teacher->school_id
+            || ($application->student->school_name && $application->student->school_name === $schoolName);
+
+        if (! $hasAccess) {
             return $this->error('Anda tidak memiliki akses ke lamaran ini.', null, 403);
         }
 
@@ -91,9 +101,15 @@ class TeacherApplicationController extends Controller
         }
 
         $schoolId = $teacher->school_id;
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
 
         $stats = Application::query()
-            ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereHas('student', function ($q) use ($schoolId, $schoolName) {
+                $q->where(function ($sq) use ($schoolId, $schoolName) {
+                    $sq->where('school_id', $schoolId)
+                       ->orWhere('school_name', $schoolName);
+                });
+            })
             ->selectRaw("status, count(*) as total")
             ->groupBy('status')
             ->pluck('total', 'status');

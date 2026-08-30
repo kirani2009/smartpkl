@@ -1,18 +1,15 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFetch } from '../../hooks/useApi';
-import { Card, LoadingState, ErrorState } from '../../components/ui';
+import { LoadingState, EmptyState, ErrorState } from '../../components/ui';
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
   const { data: dashboard, loading, error, refetch } = useFetch('/company/dashboard');
   const { data: profile, loading: profileLoading } = useFetch('/me/company');
 
-  // Check if company profile exists
   useEffect(() => {
     if (!loading && !profileLoading) {
-      // API returns { success, message, data: CompanyResource }
-      // CompanyResource has a 'profile' nested object
       const hasProfile = profile?.profile;
       if (error && error.includes('belum dibuat')) {
         navigate('/company/profile/setup', { replace: true });
@@ -24,80 +21,100 @@ export default function CompanyDashboard() {
 
   if (loading || profileLoading) return <LoadingState />;
   if (error && !error.includes('belum dibuat')) return <ErrorState message={error} onRetry={refetch} />;
-
   if (error?.includes('belum dibuat') || (profile && !profile?.profile)) {
     return <LoadingState text="Mengalihkan ke pengaturan profil..." />;
   }
 
-  // Backend response structure:
-  // { company, partnerships, internship_listings, applicants, recent_applications }
   const stats = dashboard || {};
-
   const internshipListings = stats.internship_listings || {};
   const applicants = stats.applicants || {};
   const partnerships = stats.partnerships || {};
   const recentApplications = stats.recent_applications || [];
 
+  const statCards = [
+    { label: 'Lowongan Aktif', value: internshipListings.published || 0, icon: '📋', gradient: 'from-blue-500 to-indigo-600', bgLight: 'bg-blue-50' },
+    { label: 'Total Pelamar', value: applicants.total || 0, icon: '👥', gradient: 'from-purple-500 to-violet-600', bgLight: 'bg-purple-50' },
+    { label: 'Partnership Aktif', value: partnerships.active || 0, icon: '🤝', gradient: 'from-emerald-500 to-teal-600', bgLight: 'bg-emerald-50' },
+    { label: 'Menunggu Review', value: applicants.pending || 0, icon: '⏳', gradient: 'from-amber-500 to-orange-600', bgLight: 'bg-amber-50' },
+  ];
+
+  const statusColors = {
+    PENDING: 'bg-amber-50 text-amber-700 border border-amber-200',
+    REVIEWED: 'bg-blue-50 text-blue-700 border border-blue-200',
+    ACCEPTED: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    REJECTED: 'bg-red-50 text-red-700 border border-red-200',
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard Perusahaan</h1>
-        <p className="text-sm text-slate-500">Ringkasan aktivitas perusahaan Anda.</p>
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-700 p-8 text-white shadow-xl">
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
+        <div className="relative z-10">
+          <p className="text-sm font-medium text-white/70">Selamat datang kembali</p>
+          <h1 className="mt-1 text-2xl font-bold">{profile?.profile?.name || profile?.name || 'Perusahaan'} 🏢</h1>
+          <p className="mt-2 max-w-lg text-sm text-white/80">
+            Kelola lowongan, pelamar, dan partnership Anda dari sini.
+          </p>
+        </div>
       </div>
 
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <Card.Body>
-            <p className="text-sm text-slate-500">Lowongan Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{internshipListings.published || 0}</p>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <p className="text-sm text-slate-500">Total Pelamar</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{applicants.total || 0}</p>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <p className="text-sm text-slate-500">Partnership Aktif</p>
-            <p className="mt-1 text-2xl font-bold text-brand-600">{partnerships.active || 0}</p>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <p className="text-sm text-slate-500">Menunggu Review</p>
-            <p className="mt-1 text-2xl font-bold text-yellow-600">{applicants.pending || 0}</p>
-          </Card.Body>
-        </Card>
+        {statCards.map((stat) => (
+          <div
+            key={stat.label}
+            className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/50"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium text-slate-500">{stat.label}</p>
+                <p className="mt-2 text-3xl font-bold text-slate-900">{stat.value}</p>
+              </div>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.bgLight} text-2xl shadow-sm transition-transform duration-300 group-hover:scale-110`}>
+                {stat.icon}
+              </div>
+            </div>
+            <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${stat.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+          </div>
+        ))}
       </div>
 
-      {recentApplications.length > 0 && (
-        <Card>
-          <Card.Header>
-            <h2 className="font-semibold text-slate-900">Pelamar Terbaru</h2>
-          </Card.Header>
-          <Card.Body>
+      {/* Recent Applications */}
+      <div className="rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl">
+        <div className="border-b border-slate-100 px-6 py-4">
+          <h2 className="text-sm font-semibold text-slate-900">Pelamar Terbaru</h2>
+        </div>
+        <div className="p-6">
+          {!recentApplications.length ? (
+            <EmptyState
+              title="Belum ada pelamar terbaru"
+              description="Pelamar akan muncul di sini setelah siswa mengirim lamaran."
+              icon="📋"
+            />
+          ) : (
             <div className="space-y-3">
               {recentApplications.map((app) => (
-                <div key={app.id} className="flex items-center justify-between rounded-lg border border-slate-100 p-3">
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">{app.student_name}</p>
-                    <p className="text-xs text-slate-500">{app.internship_title}</p>
+                <div key={app.id} className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all duration-200 hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 text-sm font-bold text-white shadow-sm">
+                      {(app.student_name || 'S').charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-slate-900 group-hover:text-blue-700">{app.student_name}</p>
+                      <p className="truncate text-xs text-slate-500">{app.internship_title}</p>
+                    </div>
                   </div>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    app.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                    app.status === 'ACCEPTED' ? 'bg-brand-100 text-brand-700' :
-                    'bg-slate-100 text-slate-600'
-                  }`}>
+                  <span className={`flex-shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${statusColors[app.status] || 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
                     {app.status}
                   </span>
                 </div>
               ))}
             </div>
-          </Card.Body>
-        </Card>
-      )}
+          )}
+        </div>
+      </div>
     </div>
   );
 }

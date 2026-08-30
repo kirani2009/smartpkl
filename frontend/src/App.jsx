@@ -18,9 +18,10 @@ import StudentInterviews from './pages/student/StudentInterviews';
 
 // Teacher pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import TeacherProfile from './pages/teacher/TeacherProfile';
 import TeacherStudents from './pages/teacher/TeacherStudents';
 import TeacherPartnerships from './pages/teacher/TeacherPartnerships';
-import TeacherReports from './pages/teacher/TeacherReports';
+
 
 // Company pages
 import CompanyDashboard from './pages/company/CompanyDashboard';
@@ -79,6 +80,11 @@ export default function App() {
               <TeacherDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/teacher/profile" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherProfile />
+            </ProtectedRoute>
+          } />
           <Route path="/teacher/students" element={
             <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherStudents />
@@ -89,11 +95,7 @@ export default function App() {
               <TeacherPartnerships />
             </ProtectedRoute>
           } />
-          <Route path="/teacher/reports" element={
-            <ProtectedRoute allowedRoles={['teacher']}>
-              <TeacherReports />
-            </ProtectedRoute>
-          } />
+
 
           {/* Company */}
           <Route path="/company/dashboard" element={

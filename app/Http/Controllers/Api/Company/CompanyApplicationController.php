@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ApplicationResource;
 use App\Http\Resources\InterviewResource;
 use App\Models\Application;
+use App\Models\ApplicationAttachment;
 use App\Models\ApplicationStatusHistory;
 use App\Models\Interview;
+use App\Models\Notification;
+use App\Services\NotificationService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\HasCompany;
 use Illuminate\Http\JsonResponse;
@@ -33,7 +36,7 @@ class CompanyApplicationController extends Controller
         }
 
         $applications = Application::query()
-            ->with(['student.user:id,name', 'student.school:id,name', 'internship:id,title'])
+            ->with(['student.user:id,name', 'student.school:id,name', 'internship:id,title', 'attachments'])
             ->whereHas('internship', fn ($q) => $q->where('company_id', $company->id))
             ->when($request->filled('internship_id'), fn ($q) => $q->where('internship_id', $request->input('internship_id')))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
@@ -71,7 +74,7 @@ class CompanyApplicationController extends Controller
         $application->load([
             'student.user', 'student.school', 'student.major', 'student.skills',
             'student.portfolios', 'student.documents', 'student.certificates',
-            'internship', 'statusHistories.changedBy', 'interviews',
+            'attachments', 'internship', 'statusHistories.changedBy', 'interviews',
         ]);
 
         return $this->success(new ApplicationResource($application), 'Detail pelamar berhasil diambil.');
@@ -108,14 +111,21 @@ class CompanyApplicationController extends Controller
             return $this->error("Tidak bisa mengubah status dari {$oldStatus} ke {$newStatus}.", null, 422);
         }
 
+        $note = $request->input('note');
+
         $application->update(['status' => $newStatus]);
 
         ApplicationStatusHistory::create([
             'application_id' => $application->id,
             'status' => $newStatus,
             'changed_by' => $request->user()->id,
-            'note' => $request->input('note'),
+            'note' => $note,
         ]);
+
+        // Kirim notifikasi ke siswa untuk semua perubahan status
+        // Menggunakan NotificationService supaya catatan/perusahaan dari perusahaan
+        // disertakan di pesan notifikasi (terutama untuk ACCEPTED & REJECTED).
+        NotificationService::applicationStatusChanged($application, $note);
 
         return $this->success(new ApplicationResource($application->fresh(['internship'])), 'Status lamaran berhasil diperbarui.');
     }
@@ -169,6 +179,30 @@ class CompanyApplicationController extends Controller
             'status' => Application::STATUS_INTERVIEW,
             'changed_by' => $request->user()->id,
             'note' => 'Interview dijadwalkan.',
+        ]);
+
+        // Kirim notifikasi ke siswa
+        $companyProfile = $company->profile;
+        $student = $application->student;
+        $internship = $application->internship;
+        $scheduledDate = $interview->scheduled_at->format('d/m/Y');
+        $scheduledTime = $interview->scheduled_at->format('H:i');
+
+        Notification::create([
+            'user_id' => $student->user_id,
+            'type' => 'INTERVIEW_SCHEDULED',
+            'title' => 'Interview Dijadwalkan',
+            'message' => "Interview dengan {$companyProfile->name} untuk posisi {$internship->title} telah dijadwalkan pada {$scheduledDate} jam {$scheduledTime}.",
+            'data' => [
+                'application_id' => $application->id,
+                'interview_id' => $interview->id,
+                'company_name' => $companyProfile->name ?? 'Perusahaan',
+                'position' => $internship->title,
+                'scheduled_at' => $interview->scheduled_at->toISOString(),
+                'mode' => $interview->mode,
+                'location' => $interview->location,
+                'notes' => $interview->notes,
+            ],
         ]);
 
         return $this->success(new InterviewResource($interview), 'Interview berhasil dijadwalkan.', 201);

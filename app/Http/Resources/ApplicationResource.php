@@ -24,6 +24,7 @@ class ApplicationResource extends JsonResource
             'applied_at' => $this->applied_at?->toISOString(),
             'student' => new StudentResource($this->whenLoaded('student')),
             'internship' => new InternshipResource($this->whenLoaded('internship')),
+            'attachments' => ApplicationAttachmentResource::collection($this->whenLoaded('attachments')),
             'status_histories' => ApplicationStatusHistoryResource::collection($this->whenLoaded('statusHistories')),
             'interviews' => InterviewResource::collection($this->whenLoaded('interviews')),
             'active_interview' => new InterviewResource($this->whenLoaded('activeInterview')),

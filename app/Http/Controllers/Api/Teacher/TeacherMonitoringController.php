@@ -33,46 +33,76 @@ class TeacherMonitoringController extends Controller
 
         $schoolId = $teacher->school_id;
 
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+
         // Student stats by major
-        $studentsByMajor = Student::where('school_id', $schoolId)
+        $studentsByMajor = Student::where(function ($q) use ($schoolId, $schoolName) {
+                $q->where('school_id', $schoolId)
+                  ->orWhere('school_name', $schoolName);
+            })
             ->selectRaw('major_id, count(*) as total')
             ->groupBy('major_id')
             ->pluck('total', 'major_id');
 
         // Application stats
         $applicationStats = Application::query()
-            ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereHas('student', function ($q) use ($schoolId, $schoolName) {
+                $q->where(function ($sq) use ($schoolId, $schoolName) {
+                    $sq->where('school_id', $schoolId)
+                       ->orWhere('school_name', $schoolName);
+                });
+            })
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $totalStudents = Student::where('school_id', $schoolId)->count();
+        $totalStudents = Student::where(function ($q) use ($schoolId, $schoolName) {
+                $q->where('school_id', $schoolId)
+                  ->orWhere('school_name', $schoolName);
+            })->count();
 
         $placedStudentIds = Application::where('status', Application::STATUS_ACCEPTED)
-            ->whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereHas('student', function ($q) use ($schoolId, $schoolName) {
+                $q->where(function ($sq) use ($schoolId, $schoolName) {
+                    $sq->where('school_id', $schoolId)
+                       ->orWhere('school_name', $schoolName);
+                });
+            })
             ->distinct()
             ->pluck('student_id');
 
         $placed = $placedStudentIds->count();
 
         // Active partnerships
-        $partnershipsActive = SchoolCompanyPartnership::where('school_id', $schoolId)
+        $partnershipsActive = SchoolCompanyPartnership::query()
             ->where('status', SchoolCompanyPartnership::STATUS_ACCEPTED)
-            ->count();
-
-        // Published internships from active partners
-        $availableInternships = InternshipListing::query()
-            ->where('status', 'PUBLISHED')
-            ->where(function ($q) use ($schoolId) {
-                $q->whereNull('school_id')
-                    ->orWhere('school_id', $schoolId);
+            ->where(function ($q) use ($schoolId, $schoolName) {
+                if ($schoolId) {
+                    $q->where('school_id', $schoolId);
+                }
+                if ($schoolName) {
+                    $q->orWhereHas('school', function ($sq) use ($schoolName) {
+                        $sq->where('name', $schoolName);
+                    });
+                }
             })
             ->count();
 
+        // Published internships from active partners
+        $availableInternships = $schoolId
+            ? InternshipListing::query()
+                ->where('status', 'PUBLISHED')
+                ->where(function ($q) use ($schoolId) {
+                    $q->whereNull('school_id')
+                        ->orWhere('school_id', $schoolId);
+                })
+                ->count()
+            : InternshipListing::where('status', 'PUBLISHED')->count();
+
         return $this->success([
             'school' => [
-                'id' => $teacher->school->id,
-                'name' => $teacher->school->name,
+                'id' => $schoolId,
+                'name' => $schoolName,
             ],
             'students' => [
                 'total' => $totalStudents,
@@ -111,10 +141,26 @@ class TeacherMonitoringController extends Controller
 
         $schoolId = $teacher->school_id;
 
-        $students = Student::query()
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+
+        $query = Student::query()
             ->with(['user:id,name,email', 'major:id,name'])
-            ->where('school_id', $schoolId)
-            ->when($request->filled('major_id'), fn ($q) => $q->where('major_id', $request->input('major_id')))
+            ->where(function ($q) use ($schoolId, $schoolName) {
+                if ($schoolId) {
+                    $q->where('school_id', $schoolId);
+                }
+                if ($schoolName) {
+                    $q->orWhere('school_name', $schoolName);
+                }
+            })
+            ->when($request->filled('major_id'), function ($q) use ($request) {
+                $majorId = $request->input('major_id');
+                $majorName = \App\Models\Major::find($majorId)?->name;
+                $q->where(function ($mq) use ($majorId, $majorName) {
+                    $mq->where('major_id', $majorId)
+                       ->when($majorName, fn ($sub) => $sub->orWhere('major_name', $majorName));
+                });
+            })
             ->when($request->filled('placement'), function ($query) use ($request) {
                 $placement = $request->input('placement');
                 if ($placement === 'placed') {
@@ -141,8 +187,9 @@ class TeacherMonitoringController extends Controller
                 'applications as total_applications',
                 'applications as accepted_applications' => fn ($q) => $q->where('status', Application::STATUS_ACCEPTED),
             ])
-            ->orderBy('id')
-            ->paginate($request->integer('per_page', 15));
+            ->orderBy('id');
+
+        $students = $query->paginate($request->integer('per_page', 15));
 
         // Add placement info
         $items = $students->getCollection()->map(function (Student $student) {
@@ -157,6 +204,8 @@ class TeacherMonitoringController extends Controller
                 'gender' => $student->gender,
                 'user' => $student->user,
                 'major' => $student->major,
+                'major_name' => $student->major?->name ?? $student->major_name,
+                'school_name' => $student->school?->name ?? $student->school_name,
                 'total_applications' => $student->total_applications,
                 'accepted_applications' => $student->accepted_applications,
                 'is_placed' => $student->accepted_applications > 0,
@@ -186,7 +235,15 @@ class TeacherMonitoringController extends Controller
     {
         $teacher = $request->user()->teacher;
 
-        if (! $teacher || $student->school_id !== $teacher->school_id) {
+        if (! $teacher) {
+            return $this->error('Profil guru belum dibuat.', null, 404);
+        }
+
+        $schoolName = $teacher->school_name ?? $teacher->school?->name ?? '';
+        $hasAccess = ($teacher->school_id && $student->school_id === $teacher->school_id)
+            || ($schoolName && $student->school_name === $schoolName);
+
+        if (! $hasAccess) {
             return $this->error('Anda tidak memiliki akses ke data siswa ini.', null, 403);
         }
 
@@ -202,6 +259,23 @@ class TeacherMonitoringController extends Controller
             'applications.statusHistories.changedBy',
         ]);
 
-        return $this->success(new StudentResource($student), 'Detail siswa berhasil diambil.');
+        // Determine PKL placement status from applications
+        $acceptedApp = $student->applications->first(fn ($a) => $a->status === Application::STATUS_ACCEPTED);
+        $totalApps = $student->applications->count();
+        $placement = null;
+        if ($acceptedApp) {
+            $placement = [
+                'internship_id' => $acceptedApp->internship_id,
+                'internship_title' => $acceptedApp->internship->title ?? null,
+                'company_name' => $acceptedApp->internship->company->profile->name ?? null,
+            ];
+        }
+
+        $studentData = (new StudentResource($student))->toArray($request);
+        $studentData['is_placed'] = $acceptedApp !== null;
+        $studentData['total_applications'] = $totalApps;
+        $studentData['placement'] = $placement;
+
+        return $this->success($studentData, 'Detail siswa berhasil diambil.');
     }
 }

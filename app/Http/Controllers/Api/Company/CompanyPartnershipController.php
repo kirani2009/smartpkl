@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PartnershipResource;
+use App\Models\School;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
 use App\Traits\HasCompany;
@@ -13,7 +14,7 @@ use Illuminate\Http\Request;
 /**
  * PHASE 5 — Company.
  * Pengelolaan partnership dari sisi perusahaan.
- * Perusahaan mengajukan kerja sama ke sekolah.
+ * Perusahaan mengajukan kerja sama. Guru yang akan menerima atau menolak.
  */
 class CompanyPartnershipController extends Controller
 {
@@ -65,7 +66,8 @@ class CompanyPartnershipController extends Controller
     }
 
     /**
-     * POST /api/company/partnerships — ajukan partnership ke sekolah.
+     * POST /api/company/partnerships — ajukan partnership.
+     * Sekolah otomatis ditentukan (single school app).
      */
     public function store(Request $request): JsonResponse
     {
@@ -76,11 +78,38 @@ class CompanyPartnershipController extends Controller
         }
 
         $request->validate([
-            'school_id' => ['required', 'exists:schools,id'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['required', 'string', 'max:1000'],
+            'school_name' => ['nullable', 'string', 'max:255'],
+            'teacher_name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $schoolId = $request->input('school_id');
+        // Resolve school from school_name or default to first school
+        $school = null;
+        $schoolName = $request->input('school_name');
+        if (! empty($schoolName)) {
+            $school = School::where('name', 'like', '%' . trim($schoolName) . '%')->first();
+        }
+        if (! $school) {
+            $school = School::first();
+        }
+
+        if (! $school) {
+            return $this->error('Tidak ada sekolah yang tersedia di sistem.', null, 422);
+        }
+
+        // Resolve teacher (requested_by) from teacher_name if provided
+        $requestedBy = $request->user()->id;
+        $teacherName = $request->input('teacher_name');
+        if (! empty($teacherName)) {
+            $teacherUser = \App\Models\User::where('role', 'teacher')
+                ->where('name', 'like', '%' . trim($teacherName) . '%')
+                ->first();
+            if ($teacherUser) {
+                $requestedBy = $teacherUser->id;
+            }
+        }
+
+        $schoolId = $school->id;
 
         // Cek apakah sudah ada partnership antara perusahaan dan sekolah ini
         $existing = SchoolCompanyPartnership::where('company_id', $company->id)
@@ -89,7 +118,7 @@ class CompanyPartnershipController extends Controller
 
         if ($existing) {
             if ($existing->status === SchoolCompanyPartnership::STATUS_PENDING) {
-                return $this->error('Pengajuan partnership ke sekolah ini sudah ada dan sedang menunggu jawaban.', null, 409);
+                return $this->error('Pengajuan partnership sudah ada dan sedang menunggu persetujuan guru.', null, 409);
             }
             if ($existing->status === SchoolCompanyPartnership::STATUS_ACCEPTED) {
                 return $this->error('Sudah ada partnership aktif dengan sekolah ini.', null, 409);
@@ -97,7 +126,7 @@ class CompanyPartnershipController extends Controller
             // Re-submit if REJECTED or EXPIRED
             $existing->update([
                 'status' => SchoolCompanyPartnership::STATUS_PENDING,
-                'requested_by' => $request->user()->id,
+                'requested_by' => $requestedBy,
                 'responded_at' => null,
                 'notes' => $request->input('notes'),
             ]);
@@ -112,22 +141,23 @@ class CompanyPartnershipController extends Controller
         $partnership = SchoolCompanyPartnership::create([
             'school_id' => $schoolId,
             'company_id' => $company->id,
-            'requested_by' => $request->user()->id,
+            'requested_by' => $requestedBy,
             'status' => SchoolCompanyPartnership::STATUS_PENDING,
             'notes' => $request->input('notes'),
         ]);
 
         return $this->success(
             new PartnershipResource($partnership->load(['school', 'requester'])),
-            'Pengajuan partnership berhasil dikirim.',
+            'Pengajuan partnership berhasil dikirim. Menunggu persetujuan guru.',
             201
         );
     }
 
     /**
-     * PUT /api/company/partnerships/{partnership}/accept — terima partnership.
+     * DELETE /api/company/partnerships/{partnership} — batalkan pengajuan partnership.
+     * Hanya bisa dibatalkan jika status masih PENDING.
      */
-    public function accept(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
+    public function cancel(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
     {
         $company = $this->resolveCompany($request);
 
@@ -136,37 +166,11 @@ class CompanyPartnershipController extends Controller
         }
 
         if ($partnership->status !== SchoolCompanyPartnership::STATUS_PENDING) {
-            return $this->error('Hanya partnership dengan status PENDING yang dapat diterima.', null, 422);
+            return $this->error('Hanya pengajuan dengan status PENDING yang dapat dibatalkan.', null, 422);
         }
 
-        $partnership->update([
-            'status' => SchoolCompanyPartnership::STATUS_ACCEPTED,
-            'responded_at' => now(),
-        ]);
+        $partnership->delete();
 
-        return $this->success($partnership->fresh(['school']), 'Partnership berhasil diterima.');
-    }
-
-    /**
-     * PUT /api/company/partnerships/{partnership}/reject — tolak partnership.
-     */
-    public function reject(Request $request, SchoolCompanyPartnership $partnership): JsonResponse
-    {
-        $company = $this->resolveCompany($request);
-
-        if (! $company || $partnership->company_id !== $company->id) {
-            return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
-        }
-
-        if ($partnership->status !== SchoolCompanyPartnership::STATUS_PENDING) {
-            return $this->error('Hanya partnership dengan status PENDING yang dapat ditolak.', null, 422);
-        }
-
-        $partnership->update([
-            'status' => SchoolCompanyPartnership::STATUS_REJECTED,
-            'responded_at' => now(),
-        ]);
-
-        return $this->success($partnership->fresh(['school']), 'Partnership berhasil ditolak.');
+        return $this->success(null, 'Pengajuan partnership berhasil dibatalkan.');
     }
 }

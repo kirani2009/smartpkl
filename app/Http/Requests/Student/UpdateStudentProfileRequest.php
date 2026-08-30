@@ -18,8 +18,11 @@ class UpdateStudentProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_id' => ['sometimes', 'exists:schools,id'],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'school_id' => ['sometimes', 'nullable', 'exists:schools,id'],
+            'school_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'major_id' => ['sometimes', 'nullable', 'exists:majors,id'],
+            'major_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'nis' => ['sometimes', 'nullable', 'string', 'max:30'],
             'class' => ['sometimes', 'nullable', 'string', 'max:30'],
             'entry_year' => ['sometimes', 'nullable', 'integer', 'min:2000', 'max:' . date('Y')],

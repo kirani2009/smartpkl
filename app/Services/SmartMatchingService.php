@@ -77,7 +77,7 @@ class SmartMatchingService
     public function getRecommendations(Student $student, int $limit = 20, float $minScore = 0): Collection
     {
         $internships = InternshipListing::query()
-            ->with(['company:id', 'school:id,name', 'major:id,name', 'skills'])
+            ->with(['company.profile', 'school:id,name', 'major:id,name', 'skills'])
             ->where('status', InternshipListing::STATUS_PUBLISHED)
             ->get();
 

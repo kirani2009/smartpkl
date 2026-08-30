@@ -72,7 +72,7 @@ class SmartMatchingController extends Controller
         }
 
         $student->load(['school', 'major', 'skills']);
-        $internship->load(['school', 'major', 'skills']);
+        $internship->load(['company.profile', 'school', 'major', 'skills']);
 
         $match = $this->matchingService->calculateMatch($student, $internship);
 

@@ -18,6 +18,7 @@ class Application extends Model
     public const STATUS_INTERVIEW = 'INTERVIEW';
     public const STATUS_ACCEPTED = 'ACCEPTED';
     public const STATUS_REJECTED = 'REJECTED';
+    public const STATUS_CANCELLED = 'CANCELLED';
 
     protected $fillable = [
         'internship_id',
@@ -51,6 +52,11 @@ class Application extends Model
     public function interviews(): HasMany
     {
         return $this->hasMany(Interview::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ApplicationAttachment::class);
     }
 
     /**

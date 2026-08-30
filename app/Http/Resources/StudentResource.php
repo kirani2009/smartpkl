@@ -18,8 +18,11 @@ class StudentResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'name' => $this->name,
             'school_id' => $this->school_id,
+            'school_name' => $this->school_name,
             'major_id' => $this->major_id,
+            'major_name' => $this->major_name,
             'nis' => $this->nis,
             'class' => $this->class,
             'entry_year' => $this->entry_year,
@@ -59,17 +62,17 @@ class StudentResource extends JsonResource
     private function calculateCompleteness(): array
     {
         $requiredFields = [
-            'major_id' => 'Jurusan',
             'nis' => 'NIS/NISN',
             'class' => 'Kelas',
             'gender' => 'Jenis Kelamin',
             'phone' => 'Nomor HP',
-            'address' => 'Alamat',
-            'interests' => 'Minat/Bio',
+            'address' => 'Alamat Rumah',
+            'interests' => 'Deskripsi/Minat/Bio',
         ];
 
         $filled = 0;
-        $total = count($requiredFields) + 1; // +1 untuk skills
+        // +2 for skills and school/major relations
+        $total = count($requiredFields) + 2;
         $missingFields = [];
 
         foreach ($requiredFields as $field => $label) {
@@ -78,6 +81,20 @@ class StudentResource extends JsonResource
             } else {
                 $missingFields[] = $label;
             }
+        }
+
+        // School check: school_id OR school_name OR school relation
+        if (! empty($this->school_id) || ! empty($this->school_name) || ($this->relationLoaded('school') && $this->school)) {
+            $filled++;
+        } else {
+            $missingFields[] = 'Sekolah';
+        }
+
+        // Major check: major_id OR major_name OR major relation
+        if (! empty($this->major_id) || ! empty($this->major_name) || ($this->relationLoaded('major') && $this->major)) {
+            $filled++;
+        } else {
+            $missingFields[] = 'Jurusan';
         }
 
         // Skills dihitung dari relasi

@@ -7,6 +7,7 @@ use App\Http\Requests\Partnership\StorePartnershipRequest;
 use App\Http\Resources\CompanyResource;
 use App\Http\Resources\PartnershipResource;
 use App\Models\Company;
+use App\Models\School;
 use App\Models\SchoolCompanyPartnership;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -75,7 +76,17 @@ class TeacherPartnershipController extends Controller
 
         $partnerships = SchoolCompanyPartnership::query()
             ->with(['company.profile', 'requester:id,name'])
-            ->where('school_id', $teacher->school_id)
+            ->where(function ($q) use ($teacher) {
+                if ($teacher->school_id) {
+                    $q->where('school_id', $teacher->school_id);
+                } elseif ($teacher->school_name) {
+                    $q->whereHas('school', function ($sq) use ($teacher) {
+                        $sq->where('name', $teacher->school_name);
+                    });
+                } else {
+                    $q->whereRaw('0 = 1');
+                }
+            })
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->latest()
             ->paginate($request->integer('per_page', 15));
@@ -103,7 +114,13 @@ class TeacherPartnershipController extends Controller
         }
 
         // Hanya partnership dari sekolah guru yang boleh dilihat.
-        if ($partnership->school_id !== $teacher->school_id) {
+        $hasAccess = false;
+        if ($teacher->school_id) {
+            $hasAccess = $partnership->school_id === $teacher->school_id;
+        } elseif ($teacher->school_name) {
+            $hasAccess = $partnership->school?->name === $teacher->school_name;
+        }
+        if (! $hasAccess) {
             return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
         }
 
@@ -124,6 +141,19 @@ class TeacherPartnershipController extends Controller
         }
 
         $schoolId = $teacher->school_id;
+
+        // Resolve school_id from school_name if not set
+        if (! $schoolId && $teacher->school_name) {
+            $school = School::where('name', $teacher->school_name)->first();
+            if ($school) {
+                $schoolId = $school->id;
+            }
+        }
+
+        if (! $schoolId) {
+            return $this->error('Profil guru belum memiliki sekolah terkait. Lengkapi profil terlebih dahulu.', null, 422);
+        }
+
         $companyId = $request->validated('company_id');
 
         // Pastikan perusahaan aktif.
@@ -188,12 +218,19 @@ class TeacherPartnershipController extends Controller
         }
 
         // Hanya partnership dari sekolah guru yang boleh diupdate.
-        if ($partnership->school_id !== $teacher->school_id) {
+        $hasAccess = false;
+        if ($teacher->school_id) {
+            $hasAccess = $partnership->school_id === $teacher->school_id;
+        } elseif ($teacher->school_name) {
+            $hasAccess = $partnership->school?->name === $teacher->school_name;
+        }
+        if (! $hasAccess) {
             return $this->error('Anda tidak memiliki akses ke partnership ini.', null, 403);
         }
 
         $request->validate([
             'status' => ['required', 'in:ACCEPTED,REJECTED'],
+            'response_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
         if ($partnership->status !== SchoolCompanyPartnership::STATUS_PENDING) {
@@ -203,6 +240,7 @@ class TeacherPartnershipController extends Controller
         $partnership->update([
             'status' => $request->input('status'),
             'responded_at' => now(),
+            'response_notes' => $request->input('response_notes'),
         ]);
 
         $statusText = $request->input('status') === 'ACCEPTED' ? 'diterima' : 'ditolak';

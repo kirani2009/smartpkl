@@ -116,11 +116,17 @@ class NotificationService
         ];
         $statusLabel = $statusLabels[$application->status] ?? strtolower($application->status);
 
+        // Sertakan catatan/perusahaan di pesan jika ada
+        $message = "Lamaran Anda ke \"{$internshipTitle}\" di {$companyName} {$statusLabel}.";
+        if ($note && in_array($application->status, ['ACCEPTED', 'REJECTED'], true)) {
+            $message .= "\n\nPesan dari perusahaan: {$note}";
+        }
+
         self::create(
             $studentId,
             'APPLICATION_STATUS_CHANGED',
             'Status Lamaran Diperbarui',
-            "Lamaran Anda ke \"{$internshipTitle}\" di {$companyName} {$statusLabel}.",
+            $message,
             array_merge(
                 ['application_id' => $application->id, 'status' => $application->status],
                 $note ? ['note' => $note] : []

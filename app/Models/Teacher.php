@@ -13,7 +13,9 @@ class Teacher extends Model
 {
     protected $fillable = [
         'user_id',
+        'teacher_name',
         'school_id',
+        'school_name',
         'nip',
         'position',
         'phone',

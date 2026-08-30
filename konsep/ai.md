@@ -707,7 +707,7 @@ FILE: docs/ai/WORKFLOW.json
 {
 "partnership": [
 "Teacher searches company",
-"Teacher sends partnership request",
+"Teacher sends partnership request",Perbaiki fitur rekomendasi lowongan pada Dashboard role Siswa. Saat siswa sudah melengkapi seluruh data profil yang memang dibutuhkan untuk rekomendasi, Dashboard masih menampilkan pesan “Lengkapi profil terlebih dahulu” dan tidak menampilkan rekomendasi. Periksa logika pengecekan kelengkapan profil di frontend dan backend, termasuk field nama siswa, jurusan, sekolah, alamat rumah, serta field profil lain yang memang diwajibkan oleh sistem. Cocokkan dengan struktur database dan API yang sebenarnya, jangan membuat syarat baru yang tidak diperlukan. Jika profil siswa sudah lengkap berdasarkan field yang memang diwajibkan, sistem harus langsung menganggap profil lengkap dan menampilkan rekomendasi lowongan yang relevan berdasarkan jurusan siswa dan/atau kriteria lowongan yang sudah tersedia. Jika profil memang belum lengkap, tampilkan field mana yang masih kurang secara jelas, bukan hanya pesan umum. Pastikan setelah siswa menyimpan atau memperbarui profil, status kelengkapan profil langsung diperbarui tanpa harus melakukan workaround. Periksa juga request API, response JSON, state management, null/undefined handling, dan error di Console agar rekomendasi tidak gagal atau halaman menjadi blank. Setelah diperbaiki, test dengan akun siswa yang profilnya sudah lengkap dan pastikan rekomendasi benar-benar muncul dari data lowongan yang ada di database.
 "Company receives request",
 "Company accepts or rejects",
 "If accepted, partnership becomes ACTIVE"

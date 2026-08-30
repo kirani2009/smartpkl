@@ -22,20 +22,24 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-fade-in"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
-      <div className={`w-full ${maxWidth} rounded-2xl bg-white shadow-xl`}>
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+      <div className={`w-full ${maxWidth} rounded-2xl bg-white shadow-modal animate-slide-up`}>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
-            ✕
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        <div className="px-6 py-4">{children}</div>
+        {/* Body */}
+        <div className="px-6 py-5">{children}</div>
       </div>
     </div>
   );

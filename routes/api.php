@@ -30,7 +30,7 @@ use App\Http\Controllers\Api\Teacher\TeacherDashboardController;
 use App\Http\Controllers\Api\Teacher\TeacherPartnershipController;
 use App\Http\Controllers\Api\Teacher\TeacherMonitoringController;
 use App\Http\Controllers\Api\Teacher\TeacherProfileController;
-use App\Http\Controllers\Api\Teacher\TeacherReportController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Sekolah: lihat untuk semua user login, kelola hanya admin.
     Route::get('/schools', [SchoolController::class, 'index']);
     Route::get('/schools/{school}', [SchoolController::class, 'show']);
+    Route::post('/schools/resolve', [SchoolController::class, 'resolve']);
 
     // Skills: daftar semua skill (read-only, untuk form lowongan).
     Route::get('/skills', [SkillController::class, 'index']);
@@ -133,11 +134,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/company/dashboard', [CompanyDashboardController::class, 'show']);
 
         // Pengelolaan partnership dari sisi perusahaan.
+        // Perusahaan mengajukan, guru yang menyetujui/menolak.
         Route::post('/company/partnerships', [CompanyPartnershipController::class, 'store']);
         Route::get('/company/partnerships', [CompanyPartnershipController::class, 'index']);
         Route::get('/company/partnerships/{partnership}', [CompanyPartnershipController::class, 'show']);
-        Route::put('/company/partnerships/{partnership}/accept', [CompanyPartnershipController::class, 'accept']);
-        Route::put('/company/partnerships/{partnership}/reject', [CompanyPartnershipController::class, 'reject']);
+        Route::delete('/company/partnerships/{partnership}', [CompanyPartnershipController::class, 'cancel']);
 
         // ---- PHASE 7: Internship (company CRUD lowongan PKL) ----
         Route::get('/company/internships', [CompanyInternshipController::class, 'index']);
@@ -181,6 +182,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // ---- PHASE 9: Application (siswa mendaftar PKL) ----
         // Jelajahi lowongan.
+        Route::get('/student/internships/filters', [StudentInternshipController::class, 'filters']);
         Route::get('/student/internships', [StudentInternshipController::class, 'index']);
         Route::get('/student/internships/{internship}', [StudentInternshipController::class, 'show']);
 
@@ -190,6 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Lihat lamaran saya.
         Route::get('/student/applications', [StudentInternshipController::class, 'myApplications']);
         Route::get('/student/applications/{application}', [StudentInternshipController::class, 'showApplication']);
+        Route::delete('/student/applications/{application}', [StudentInternshipController::class, 'cancel']);
 
         // Simpan/hapus lowongan.
         Route::post('/student/internships/{internship}/save', [StudentInternshipController::class, 'save']);
@@ -238,9 +241,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/teacher/monitoring/students', [TeacherMonitoringController::class, 'students']);
             Route::get('/teacher/monitoring/students/{student}', [TeacherMonitoringController::class, 'showStudent']);
 
-            // ---- PHASE 15: Reporting (teacher) ----
-            Route::get('/teacher/reports/placement', [TeacherReportController::class, 'placement']);
-            Route::get('/teacher/reports/no-internship', [TeacherReportController::class, 'noInternship']);
-            Route::get('/teacher/reports/applications', [TeacherReportController::class, 'applications']);
+
         });
 });

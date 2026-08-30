@@ -7,11 +7,10 @@ import api from '../api/api';
  * @param {object} options — { params, enabled (default true) }
  */
 export function useFetch(url, options = {}) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const { params = {}, enabled = true } = options;
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(enabled);
+  const [error, setError] = useState(null);
 
   const fetchData = useCallback(async () => {
     if (!enabled || !url) return;

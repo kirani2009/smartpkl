@@ -29,9 +29,8 @@ class InternshipListing extends Model
         'period_start',
         'period_end',
         'location',
-        'allowance',
-        'facilities',
         'required_skills',
+        'required_major',
         'status',
     ];
 
@@ -39,7 +38,6 @@ class InternshipListing extends Model
         'quota' => 'integer',
         'period_start' => 'date',
         'period_end' => 'date',
-        'allowance' => 'decimal:2',
     ];
 
     public function company(): BelongsTo
