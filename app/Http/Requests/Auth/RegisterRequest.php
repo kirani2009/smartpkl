@@ -19,7 +19,10 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            // Uniqueness email diperiksa di RegisterController di dalam blok
+            // try/catch (bukan di sini) agar error koneksi database ditangani
+            // dengan pesan JSON yang jelas, bukan exception mentah.
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             // Admin TIDAK boleh mendaftar sendiri (dibuat via seeder/admin) untuk
             // mencegah privilege escalation.

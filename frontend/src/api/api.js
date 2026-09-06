@@ -31,7 +31,7 @@ api.interceptors.response.use(
       if (!isAuthEndpoint) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = (import.meta.env.VITE_BASE || '/') + 'login';
       }
     }
     return Promise.reject(error);

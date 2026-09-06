@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(location.state?.registered ? 'Registrasi berhasil. Silakan login dengan akun Anda.' : '');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     const result = await login(form.email, form.password);
     if (result.success) {
       const role = result.user?.role;
@@ -47,6 +50,12 @@ export default function LoginPage() {
           {error && (
             <div className="mb-5 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm font-medium text-red-700">
               <span>⚠️</span> {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-5 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-sm font-medium text-emerald-700">
+              <span>✅</span> {success}
             </div>
           )}
 

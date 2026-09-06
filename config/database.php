@@ -59,6 +59,11 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
+                // Timeout koneksi singkat: jika MySQL tidak dapat dijangkau
+                // (mati, sedang start, atau stall), PDO gagal cepat sehingga
+                // login/register mengembalikan pesan JSON yang jelas, bukan
+                // menggantung sampai PHP max_execution_time habis (60 detik).
+                PDO::ATTR_TIMEOUT => 5,
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
